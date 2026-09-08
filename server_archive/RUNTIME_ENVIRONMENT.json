@@ -1,0 +1,27 @@
+{
+ "purpose": "The interpreter that runs the experiments on the training server, read directly rather than inferred. It exists because two records disagree about the PyTorch build: the manuscript reports 2.2.2 with CUDA 12.1, while SERVER_CODE_MANIFEST.json carries a pip freeze listing 2.4.0+cu124.",
+ "recorded": "2026-09-08T18:25:39Z",
+ "reading": {
+  "interpreter": "/usr/bin/python3",
+  "python": "3.10.12",
+  "torch": "2.2.2+cu121",
+  "cuda_compiled": "12.1",
+  "torch_file": "/usr/local/lib/python3.10/dist-packages/torch/__init__.py",
+  "torch_dist_info": [
+   "torch-2.2.2.dist-info",
+   "torch-2.4.0+cu124.dist-info"
+  ],
+  "torch_installed_at": 1783418950,
+  "numpy": "1.26.4",
+  "sklearn": "1.7.2",
+  "xgboost": "3.2.0",
+  "scipy": "1.15.3",
+  "pandas": "2.3.3",
+  "gpu": "NVIDIA A100-SXM4-80GB, 580.173.02, 81920 MiB",
+  "platform": "Linux-5.15.0-186-generic-x86_64-with-glibc2.35",
+  "a_published_result_written_at": 1788310259,
+  "torch_installed_at_utc": "2026-07-07 10:09:10Z",
+  "a_published_result_written_at_utc": "2026-09-02 00:50:59Z"
+ },
+ "interpretation": "The site-packages directory carries two distributions at once, torch-2.2.2.dist-info and torch-2.4.0+cu124.dist-info, because 2.2.2 was installed over 2.4.0 without the earlier one being uninstalled. `import torch` resolves to 2.2.2+cu121, which is what the manuscript reports. The pip freeze in SERVER_CODE_MANIFEST.json picked up the stale 2.4.0 metadata; it records package metadata, not the module the interpreter actually loads. The manifest is left unmodified because it is a provenance snapshot."
+}

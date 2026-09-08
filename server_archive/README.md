@@ -21,8 +21,16 @@ Every one of the 117 source files in the extracted snapshot matches its server
 manifest hash.
 
 Do not edit files under `legacy_paper/`. The maintained orchestration and data
-adapters live under `rm_dmvt/src/ids_diffusion/`; they invoke or validate this
-snapshot without changing the historical algorithms, seeds or preprocessing.
+adapters live under `src/ids_diffusion/` at the root of this repository; they
+invoke or validate this snapshot without changing the historical algorithms,
+seeds or preprocessing.
+
+`RUNTIME_ENVIRONMENT.json` records the interpreter that runs the experiments,
+read directly from the server. It exists because the `pip freeze` inside
+`SERVER_CODE_MANIFEST.json` lists a stale `torch` distribution: the server
+carries both `torch-2.2.2.dist-info` and `torch-2.4.0+cu124.dist-info`, and
+`import torch` resolves to 2.2.2+cu121, which is the build the manuscript
+reports. The manifest is left unmodified because it is a provenance snapshot.
 
 Large result arrays, caches, checkpoints and model weights are not archived in
 Git. They remain on the server and are represented by the light evidence
