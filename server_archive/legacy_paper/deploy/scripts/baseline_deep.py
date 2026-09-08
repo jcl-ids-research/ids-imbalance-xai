@@ -1,0 +1,411 @@
+"""Deep-learning baselines under conditions identical to the proposed model.
+
+Reviewer 1 asked for Transformer-, GNN- and hybrid-based comparisons (comments
+0012 and 0027). Reviewer 2 separately questioned baseline fairness, noting that
+the previous CNN/SVM/KNN numbers were low enough to suggest under-tuning rather
+than a genuine result (comment 0038).
+
+Both concerns point at the same requirement: the added baselines must see the
+identical pipeline the proposed model sees, and must be trained rather than
+merely instantiated. This script therefore imports the same loaders and the same
+rebalance() call as baseline_fair.py, so every model receives:
+
+  * the same official (or seeded stratified) split
+  * preprocessing fitted on the training partition alone
+  * the same sub-train / validation division
+  * the same balanced training set
+  * the same untouched real test partition
+
+Four architectures, chosen to cover what Reviewer 1 named:
+
+  FTTransformer   feature tokeniser + transformer encoder, the standard
+                  attention baseline for tabular data
+  GraphSAGE       inductive GNN over a k-NN graph built on the training
+                  features, mean aggregation
+  GAT             attention-based GNN on the same graph, so the graph
+                  construction is held constant and only the aggregation differs
+  CNN1D           1-D convolutional network, the "hybrid deep learning" arm
+
+Every model gets the same budget: identical epoch count, identical batch size,
+early stopping on the same validation split, and a learning-rate sweep of the
+same size. If a model still performs poorly, that is a result rather than an
+artefact of the setup - which is exactly what Reviewer 2 asked us to establish.
+
+Output mirrors baseline_fair.py so the existing table and figure scripts work
+without modification.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from sklearn.metrics import (accuracy_score, confusion_matrix,
+                             precision_recall_fscore_support)
+from sklearn.neighbors import NearestNeighbors
+
+_SCRIPTS_DIR = "/opt/ids_revision/deploy/scripts"
+sys.path.insert(0, _SCRIPTS_DIR)
+
+from correct_unsw_ablation import (  # noqa: E402
+    DDPM_EPOCHS,
+    MLPDDPM,
+    load_unsw,
+    rebalance,
+    train_ddpm,
+)
+from correct_cross_dataset import DATASETS  # noqa: E402
+from sklearn.model_selection import train_test_split  # noqa: E402
+from sklearn.preprocessing import QuantileTransformer  # noqa: E402
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEFAULT_OUT = "/opt/ids_revision/deploy/results/baseline_deep"
+
+EPOCHS = 60
+PATIENCE = 8
+BATCH = 512
+LRS = (1e-3, 3e-4)
+KNN_K = 10
+
+
+# ----------------------------------------------------------------- models
+
+
+class FTTransformer(nn.Module):
+    """Feature tokeniser + transformer encoder (Gorishniy et al. style)."""
+
+    def __init__(self, d_in: int, n_classes: int, d_model: int = 64,
+                 n_heads: int = 8, n_layers: int = 3, dropout: float = 0.1):
+        super().__init__()
+        self.tok = nn.Parameter(torch.randn(d_in, d_model) * 0.02)
+        self.bias = nn.Parameter(torch.zeros(d_in, d_model))
+        self.cls = nn.Parameter(torch.randn(1, 1, d_model) * 0.02)
+        layer = nn.TransformerEncoderLayer(
+            d_model=d_model, nhead=n_heads, dim_feedforward=d_model * 2,
+            dropout=dropout, batch_first=True, norm_first=True)
+        self.enc = nn.TransformerEncoder(layer, num_layers=n_layers)
+        self.head = nn.Sequential(nn.LayerNorm(d_model),
+                                  nn.Linear(d_model, n_classes))
+
+    def forward(self, x):
+        # x: (B, d_in) -> (B, d_in, d_model)
+        t = x.unsqueeze(-1) * self.tok.unsqueeze(0) + self.bias.unsqueeze(0)
+        t = torch.cat([self.cls.expand(x.size(0), -1, -1), t], dim=1)
+        return self.head(self.enc(t)[:, 0])
+
+
+class CNN1D(nn.Module):
+    """1-D CNN over the feature axis - the hybrid deep-learning arm."""
+
+    def __init__(self, d_in: int, n_classes: int, width: int = 64):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv1d(1, width, 5, padding=2), nn.BatchNorm1d(width), nn.ReLU(),
+            nn.Conv1d(width, width * 2, 3, padding=1),
+            nn.BatchNorm1d(width * 2), nn.ReLU(),
+            nn.AdaptiveAvgPool1d(1),
+        )
+        self.head = nn.Sequential(nn.Flatten(), nn.Dropout(0.1),
+                                  nn.Linear(width * 2, n_classes))
+
+    def forward(self, x):
+        return self.head(self.net(x.unsqueeze(1)))
+
+
+class SAGELayer(nn.Module):
+    """GraphSAGE mean aggregation, implemented on a fixed sparse neighbourhood."""
+
+    def __init__(self, d_in: int, d_out: int):
+        super().__init__()
+        self.self_lin = nn.Linear(d_in, d_out)
+        self.neigh_lin = nn.Linear(d_in, d_out)
+
+    def forward(self, h, idx):
+        # idx: (N, K) neighbour indices
+        neigh = h[idx].mean(dim=1)
+        return self.self_lin(h) + self.neigh_lin(neigh)
+
+
+class GraphSAGE(nn.Module):
+    def __init__(self, d_in: int, n_classes: int, hidden: int = 128):
+        super().__init__()
+        self.l1 = SAGELayer(d_in, hidden)
+        self.l2 = SAGELayer(hidden, hidden)
+        self.head = nn.Linear(hidden, n_classes)
+        self.drop = nn.Dropout(0.1)
+
+    def forward(self, h, idx):
+        h = self.drop(F.relu(self.l1(h, idx)))
+        h = self.drop(F.relu(self.l2(h, idx)))
+        return self.head(h)
+
+
+class GATLayer(nn.Module):
+    """Single-head graph attention on the same fixed neighbourhood."""
+
+    def __init__(self, d_in: int, d_out: int):
+        super().__init__()
+        self.lin = nn.Linear(d_in, d_out, bias=False)
+        self.att_src = nn.Parameter(torch.randn(d_out) * 0.1)
+        self.att_dst = nn.Parameter(torch.randn(d_out) * 0.1)
+
+    def forward(self, h, idx):
+        z = self.lin(h)                       # (N, d_out)
+        zn = z[idx]                           # (N, K, d_out)
+        e = (z * self.att_src).sum(-1, keepdim=True) + (zn * self.att_dst).sum(-1)
+        a = torch.softmax(F.leaky_relu(e, 0.2), dim=1).unsqueeze(-1)
+        return (a * zn).sum(dim=1) + z
+
+
+class GAT(nn.Module):
+    def __init__(self, d_in: int, n_classes: int, hidden: int = 128):
+        super().__init__()
+        self.l1 = GATLayer(d_in, hidden)
+        self.l2 = GATLayer(hidden, hidden)
+        self.head = nn.Linear(hidden, n_classes)
+        self.drop = nn.Dropout(0.1)
+
+    def forward(self, h, idx):
+        h = self.drop(F.elu(self.l1(h, idx)))
+        h = self.drop(F.elu(self.l2(h, idx)))
+        return self.head(h)
+
+
+# ----------------------------------------------------------------- helpers
+
+
+def score(y_true, y_pred) -> dict:
+    p, r, f, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="weighted", zero_division=0)
+    _, _, fm, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="macro", zero_division=0)
+    return {
+        "acc": float(accuracy_score(y_true, y_pred)),
+        "precision": float(p), "recall": float(r),
+        "f1": float(f), "f1_macro": float(fm),
+        "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
+    }
+
+
+def build_knn_index(X_train: np.ndarray, X_all: np.ndarray, k: int) -> np.ndarray:
+    """Neighbour indices into X_train for every row of X_all.
+
+    The graph is built from training features only - test rows attach to
+    training neighbours but never to each other, so no test-test information
+    flows during inference.
+    """
+    nn_model = NearestNeighbors(n_neighbors=k, algorithm="auto", n_jobs=-1)
+    nn_model.fit(X_train)
+    _, idx = nn_model.kneighbors(X_all, n_neighbors=k)
+    return idx.astype(np.int64)
+
+
+def train_mlp_style(model, Xtr, ytr, Xva, yva, Xte, n_classes, lr):
+    model = model.to(DEVICE)
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    lossf = nn.CrossEntropyLoss()
+    Xtr_t = torch.tensor(Xtr, dtype=torch.float32)
+    ytr_t = torch.tensor(ytr, dtype=torch.long)
+    Xva_t = torch.tensor(Xva, dtype=torch.float32).to(DEVICE)
+    yva_t = torch.tensor(yva, dtype=torch.long).to(DEVICE)
+
+    best, best_state, bad = -1.0, None, 0
+    n = len(Xtr_t)
+    for _ in range(EPOCHS):
+        model.train()
+        perm = torch.randperm(n)
+        for s in range(0, n, BATCH):
+            b = perm[s:s + BATCH]
+            xb = Xtr_t[b].to(DEVICE)
+            yb = ytr_t[b].to(DEVICE)
+            opt.zero_grad()
+            loss = lossf(model(xb), yb)
+            loss.backward()
+            opt.step()
+        model.eval()
+        with torch.no_grad():
+            acc = (model(Xva_t).argmax(1) == yva_t).float().mean().item()
+        if acc > best:
+            best, bad = acc, 0
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= PATIENCE:
+                break
+    if best_state:
+        model.load_state_dict(best_state)
+    model.eval()
+    preds = []
+    with torch.no_grad():
+        Xte_t = torch.tensor(Xte, dtype=torch.float32)
+        for s in range(0, len(Xte_t), 4096):
+            preds.append(model(Xte_t[s:s + 4096].to(DEVICE)).argmax(1).cpu())
+    return torch.cat(preds).numpy(), best
+
+
+def train_graph(model, Xtr, ytr, Xva, yva, Xte, n_classes, lr, k=KNN_K):
+    """Graph models: one fixed k-NN graph, full-batch message passing."""
+    model = model.to(DEVICE)
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    lossf = nn.CrossEntropyLoss()
+
+    idx_tr = torch.tensor(build_knn_index(Xtr, Xtr, k)).to(DEVICE)
+    idx_va = torch.tensor(build_knn_index(Xtr, Xva, k)).to(DEVICE)
+    idx_te = torch.tensor(build_knn_index(Xtr, Xte, k)).to(DEVICE)
+
+    Htr = torch.tensor(Xtr, dtype=torch.float32).to(DEVICE)
+    ytr_t = torch.tensor(ytr, dtype=torch.long).to(DEVICE)
+    Hva = torch.tensor(Xva, dtype=torch.float32).to(DEVICE)
+    yva_t = torch.tensor(yva, dtype=torch.long).to(DEVICE)
+    Hte = torch.tensor(Xte, dtype=torch.float32).to(DEVICE)
+
+    best, best_state, bad = -1.0, None, 0
+    for _ in range(EPOCHS):
+        model.train()
+        opt.zero_grad()
+        loss = lossf(model(Htr, idx_tr), ytr_t)
+        loss.backward()
+        opt.step()
+        model.eval()
+        with torch.no_grad():
+            # validation rows attach to training neighbours
+            hv = torch.cat([Htr, Hva])
+            acc = (model(hv, torch.cat([idx_tr, idx_va]))[len(Htr):].argmax(1)
+                   == yva_t).float().mean().item()
+        if acc > best:
+            best, bad = acc, 0
+            best_state = {k2: v.detach().clone() for k2, v in model.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= PATIENCE:
+                break
+    if best_state:
+        model.load_state_dict(best_state)
+    model.eval()
+    with torch.no_grad():
+        ht = torch.cat([Htr, Hte])
+        pred = model(ht, torch.cat([idx_tr, idx_te]))[len(Htr):].argmax(1).cpu().numpy()
+    return pred, best
+
+
+BUILDERS = {
+    "FTTransformer": (lambda d, c: FTTransformer(d, c), train_mlp_style),
+    "CNN1D":         (lambda d, c: CNN1D(d, c),         train_mlp_style),
+    "GraphSAGE":     (lambda d, c: GraphSAGE(d, c),     train_graph),
+    "GAT":           (lambda d, c: GAT(d, c),           train_graph),
+}
+
+
+def load(dataset: str, seed: int, smoke: bool, task: str = "binary"):
+    if task == "multiclass":
+        # same loaders run_instrumented.py uses, so the deep baselines see the
+        # identical label mapping as the proposed model on the same task
+        from multiclass_data import MULTICLASS_DATASETS
+        if dataset not in MULTICLASS_DATASETS:
+            raise SystemExit(
+                f"--task multiclass supports {sorted(MULTICLASS_DATASETS)}; "
+                f"got {dataset}")
+        # returns (LoadedData, class_names), same as run_instrumented.py
+        return MULTICLASS_DATASETS[dataset](smoke=smoke)
+    if dataset == "unsw":
+        return load_unsw("/opt/UNSW-NB15", smoke=smoke)
+    return DATASETS[dataset](seed, smoke)
+
+
+def run(dataset: str, seed: int, out_root: str, smoke: bool,
+        arms: list[str], task: str = "binary") -> int:
+    t0 = time.time()
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    loaded = load(dataset, seed, smoke, task)
+    class_names: list[str] | None = None
+    if isinstance(loaded, tuple):
+        data, class_names = loaded
+    else:
+        data = loaded
+    print(f"[{dataset} seed{seed}] task={task} train={len(data.X_train)} "
+          f"test={len(data.X_test)} features={data.n_features}", flush=True)
+
+    Xsub, Xva, ysub, yva = train_test_split(
+        data.X_train, data.y_train, test_size=0.1,
+        random_state=seed, stratify=data.y_train)
+    n_classes = int(np.unique(data.y_train).size)
+    Xte, yte = data.X_test, data.y_test
+
+    sets: dict[str, tuple] = {}
+    if "raw" in arms:
+        sets["raw"] = (Xsub, ysub)
+    if "balanced" in arms:
+        # Identical rebalance() call to baseline_fair.py, so the deep baselines
+        # see exactly the class distribution the proposed model was trained on.
+        qt = QuantileTransformer(output_distribution="normal", random_state=seed,
+                                 n_quantiles=min(1000, len(Xsub)))
+        Xsub_q = qt.fit_transform(Xsub)
+        ddpm: dict[int, MLPDDPM] = {}
+        for cls in np.unique(ysub):
+            m = MLPDDPM(data.n_features)
+            train_ddpm(m, Xsub_q[ysub == cls], DEVICE,
+                       2 if smoke else DDPM_EPOCHS, label=str(int(cls)))
+            ddpm[int(cls)] = m
+        X_bal, y_bal, _, _, _ = rebalance(ddpm, Xsub, ysub, qt, DEVICE, seed)
+        sets["balanced"] = (X_bal, y_bal)
+
+    out = {"dataset": dataset, "seed": seed, "task": task,
+           "n_classes": n_classes, "class_names": class_names,
+           "n_test": int(len(yte)),
+           "protocol": "identical loaders, split and rebalance() as baseline_fair.py",
+           "epochs": EPOCHS, "patience": PATIENCE, "batch": BATCH,
+           "lr_sweep": list(LRS), "knn_k": KNN_K, "variants": {}}
+
+    for arm, (Xa, ya) in sets.items():
+        print(f"  [SET] {arm}: n={len(Xa)}", flush=True)
+        for name, (build, trainer) in BUILDERS.items():
+            key = f"{name}__{arm}"
+            best_pred, best_acc, best_lr = None, -1.0, None
+            for lr in LRS:
+                torch.manual_seed(seed)
+                model = build(Xa.shape[1], n_classes)
+                pred, vacc = trainer(model, Xa, ya, Xva, yva, Xte, n_classes, lr)
+                if vacc > best_acc:
+                    best_pred, best_acc, best_lr = pred, vacc, lr
+            m = score(yte, best_pred)
+            m["val_acc"] = float(best_acc)
+            m["lr"] = best_lr
+            out["variants"][key] = m
+            print(f"  {key:<26} f1={m['f1']*100:6.2f} macro={m['f1_macro']*100:6.2f} "
+                  f"(lr={best_lr})", flush=True)
+
+    root = out_root if task == "binary" else f"{out_root}_multiclass"
+    d = os.path.join(root, dataset, f"seed{seed}")
+    os.makedirs(d, exist_ok=True)
+    out["minutes"] = round((time.time() - t0) / 60, 1)
+    with open(os.path.join(d, "metrics.json"), "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"[OK] {d}/metrics.json  ({out['minutes']} min)", flush=True)
+    return 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dataset", default="unsw",
+                    choices=["unsw", "nslkdd", "cicids2017", "cicddos2019"])
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--train-sets", default="balanced,raw")
+    ap.add_argument("--task", default="binary",
+                    choices=["binary", "multiclass"])
+    args = ap.parse_args()
+    arms = [a.strip() for a in args.train_sets.split(",") if a.strip()]
+    return run(args.dataset, args.seed, args.out, args.smoke, arms, args.task)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

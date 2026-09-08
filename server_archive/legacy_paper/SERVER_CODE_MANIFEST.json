@@ -1,0 +1,810 @@
+{
+  "environment": {
+    "gpu": [
+      "NVIDIA A100-SXM4-80GB, 580.173.02, 81920 MiB"
+    ],
+    "pip_freeze": [
+      "absl-py==2.4.0",
+      "aiohappyeyeballs==2.6.2",
+      "aiohttp==3.14.1",
+      "aiosignal==1.4.0",
+      "aliyun-python-sdk-core==2.16.0",
+      "aliyun-python-sdk-kms==2.16.5",
+      "anyio==4.14.1",
+      "async-timeout==5.0.1",
+      "attrs==21.2.0",
+      "Automat==20.2.0",
+      "Babel==2.8.0",
+      "bandit==1.6.2",
+      "bcrypt==3.2.0",
+      "beautifulsoup4==4.15.0",
+      "blinker==1.4",
+      "bypy==1.8.9",
+      "certifi==2020.6.20",
+      "chardet==4.0.0",
+      "charset-normalizer==3.4.7",
+      "click==8.4.2",
+      "cloud-init==25.1.4",
+      "colorama==0.4.4",
+      "command-not-found==0.3",
+      "configobj==5.0.6",
+      "constantly==15.1.0",
+      "contourpy==1.3.2",
+      "crcmod==1.7",
+      "cryptography==3.4.8",
+      "cuda-bindings==13.3.1",
+      "cuda-pathfinder==1.5.5",
+      "cuda-toolkit==13.0.2",
+      "cycler==0.12.1",
+      "dbus-python==1.2.18",
+      "dill==0.4.1",
+      "distro==1.7.0",
+      "distro-info==1.1+ubuntu0.2",
+      "docker==5.0.3",
+      "docker-compose==1.29.2",
+      "dockerpty==0.4.1",
+      "docopt==0.6.2",
+      "exceptiongroup==1.3.1",
+      "facenet-pytorch==2.6.0",
+      "filelock==3.29.0",
+      "fonttools==4.63.0",
+      "frozenlist==1.8.0",
+      "fsspec==2026.4.0",
+      "gdown==6.1.0",
+      "gitdb==4.0.9",
+      "GitPython==3.1.24",
+      "grpcio==1.81.1",
+      "h11==0.16.0",
+      "hf-xet==1.5.1",
+      "httpcore==1.0.9",
+      "httplib2==0.20.2",
+      "httpx==0.28.1",
+      "huggingface_hub==1.22.0",
+      "hyperlink==21.0.0",
+      "idna==3.3",
+      "ImageIO==2.37.3",
+      "imbalanced-learn==0.14.2",
+      "importlib-metadata==4.6.4",
+      "incremental==21.3.0",
+      "iotop==0.6",
+      "jeepney==0.7.1",
+      "Jinja2==3.0.3",
+      "jmespath==0.10.0",
+      "joblib==1.5.3",
+      "jsonpatch==1.32",
+      "jsonpointer==2.0",
+      "jsonschema==3.2.0",
+      "kagglehub==1.0.2",
+      "kagglesdk==0.1.28",
+      "keyring==23.5.0",
+      "kiwisolver==1.5.0",
+      "launchpadlib==1.10.16",
+      "lazr.restfulclient==0.14.4",
+      "lazr.uri==1.0.6",
+      "lazy-loader==0.5",
+      "libvirt-python==8.0.0",
+      "lxml==6.1.1",
+      "Markdown==3.10.2",
+      "markdown-it-py==4.2.0",
+      "MarkupSafe==3.0.3",
+      "matplotlib==3.10.9",
+      "mdurl==0.1.2",
+      "more-itertools==8.10.0",
+      "mpmath==1.3.0",
+      "multidict==6.7.1",
+      "multiprocess==0.70.19",
+      "netifaces==0.11.0",
+      "networkx==3.4.2",
+      "numpy==1.26.4",
+      "nvidia-cublas==13.1.1.3",
+      "nvidia-cublas-cu11==11.11.3.6",
+      "nvidia-cublas-cu12==12.1.3.1",
+      "nvidia-cuda-cupti==13.0.85",
+      "nvidia-cuda-cupti-cu11==11.8.87",
+      "nvidia-cuda-cupti-cu12==12.1.105",
+      "nvidia-cuda-nvrtc==13.0.88",
+      "nvidia-cuda-nvrtc-cu11==11.8.89",
+      "nvidia-cuda-nvrtc-cu12==12.1.105",
+      "nvidia-cuda-runtime==13.0.96",
+      "nvidia-cuda-runtime-cu11==11.8.89",
+      "nvidia-cuda-runtime-cu12==12.1.105",
+      "nvidia-cudnn-cu11==9.1.0.70",
+      "nvidia-cudnn-cu12==8.9.2.26",
+      "nvidia-cudnn-cu13==9.20.0.48",
+      "nvidia-cufft==12.0.0.61",
+      "nvidia-cufft-cu11==10.9.0.58",
+      "nvidia-cufft-cu12==11.0.2.54",
+      "nvidia-cufile==1.15.1.6",
+      "nvidia-curand==10.4.0.35",
+      "nvidia-curand-cu11==10.3.0.86",
+      "nvidia-curand-cu12==10.3.2.106",
+      "nvidia-cusolver==12.0.4.66",
+      "nvidia-cusolver-cu11==11.4.1.48",
+      "nvidia-cusolver-cu12==11.4.5.107",
+      "nvidia-cusparse==12.6.3.3",
+      "nvidia-cusparse-cu11==11.7.5.86",
+      "nvidia-cusparse-cu12==12.1.0.106",
+      "nvidia-cusparselt-cu13==0.8.1",
+      "nvidia-nccl-cu11==2.21.5",
+      "nvidia-nccl-cu12==2.19.3",
+      "nvidia-nccl-cu13==2.29.7",
+      "nvidia-nvjitlink==13.0.88",
+      "nvidia-nvjitlink-cu12==12.9.86",
+      "nvidia-nvshmem-cu13==3.4.5",
+      "nvidia-nvtx==13.0.85",
+      "nvidia-nvtx-cu11==11.8.86",
+      "nvidia-nvtx-cu12==12.1.105",
+      "oauthlib==3.2.0",
+      "opencv-python==4.13.0.92",
+      "openxlab==0.1.3",
+      "oss2==2.17.0",
+      "packaging==24.2",
+      "pandas==2.3.3",
+      "pbr==5.8.0",
+      "pexpect==4.8.0",
+      "pillow==10.2.0",
+      "propcache==0.5.2",
+      "protobuf==7.35.0",
+      "psutil==7.2.2",
+      "ptyprocess==0.7.0",
+      "pyasn1==0.4.8",
+      "pyasn1-modules==0.2.1",
+      "pycairo==1.20.1",
+      "pycryptodome==3.23.0",
+      "Pygments==2.20.0",
+      "PyGObject==3.42.1",
+      "PyHamcrest==2.0.2",
+      "PyJWT==2.3.0",
+      "pyOpenSSL==21.0.0",
+      "pyparsing==3.3.2",
+      "pyrsistent==0.18.1",
+      "pyserial==3.5",
+      "PySocks==1.7.1",
+      "python-apt==2.4.0+ubuntu4.1",
+      "python-dateutil==2.9.0.post0",
+      "python-debian==0.1.43+ubuntu1.1",
+      "python-docx==1.2.0",
+      "python-dotenv==0.19.2",
+      "python-magic==0.4.24",
+      "pytz==2023.4",
+      "PyYAML==6.0.3",
+      "requests==2.28.2",
+      "requests-toolbelt==1.0.0",
+      "rich==13.4.2",
+      "scikit-image==0.25.2",
+      "scikit-learn==1.7.2",
+      "scipy==1.15.3",
+      "screen-resolution-extra==0.0.0",
+      "seaborn==0.13.2",
+      "SecretStorage==3.3.1",
+      "service-identity==18.1.0",
+      "six==1.16.0",
+      "sklearn-compat==0.1.6",
+      "smmap==5.0.0",
+      "sos==4.5.6",
+      "soupsieve==2.8.4",
+      "ssh-import-id==5.11",
+      "stevedore==3.5.0",
+      "sympy==1.14.0",
+      "systemd-python==234",
+      "tensorboard==2.20.0",
+      "tensorboard-data-server==0.7.2",
+      "texttable==1.6.4",
+      "threadpoolctl==3.6.0",
+      "tifffile==2025.5.10",
+      "torch==2.4.0+cu124",
+      "torch-geometric==2.8.0",
+      "torchvision==0.19.0+cu124",
+      "tqdm==4.65.2",
+      "triton==2.2.0",
+      "Twisted==22.1.0",
+      "typing_extensions==4.15.0",
+      "tzdata==2026.2",
+      "ubuntu-advantage-tools==8001",
+      "ubuntu-drivers-common==0.0.0",
+      "ufw==0.36.1",
+      "unattended-upgrades==0.1",
+      "urllib3==1.26.5",
+      "vboxapi==1.0",
+      "wadllib==1.3.6",
+      "websocket-client==1.2.3",
+      "Werkzeug==3.1.8",
+      "xgboost==3.2.0",
+      "xkit==0.0.0",
+      "xxhash==3.7.0",
+      "yarl==1.24.2",
+      "zipp==1.0.0",
+      "zope.interface==5.4.0"
+    ],
+    "platform": "Linux-5.15.0-186-generic-x86_64-with-glibc2.35",
+    "python": "3.10.12"
+  },
+  "files": [
+    {
+      "bytes": 5671,
+      "path": "ablation/models/feature_transformer.py",
+      "sha256": "7ada0c0e698700698d31e1c1a7a08faf9dd0106355bbcedb83febe2ba63dee80"
+    },
+    {
+      "bytes": 18835,
+      "path": "ablation/models/model_variants.py",
+      "sha256": "13f731d6878ac70e3311b0ec93d311d62ad683179f408405a60a68142a5b7999"
+    },
+    {
+      "bytes": 21832,
+      "path": "ablation/train_ablation.py",
+      "sha256": "be3c83c85246bce12325e1c97d938c109822791a27279cf69ee47a6afc16c9f5"
+    },
+    {
+      "bytes": 11592,
+      "path": "ablation/train_transformer_baseline.py",
+      "sha256": "8b9f190fc121555c3300f897aff157f228ed076e16c48c97e28439fe1cc0e183"
+    },
+    {
+      "bytes": 7130,
+      "path": "deploy/ablation_cross_dataset.py",
+      "sha256": "9a90b8448434953258a4969f8c60eeb30541bc260959d786759ed047440df6eb"
+    },
+    {
+      "bytes": 17422,
+      "path": "deploy/adversarial_attack.py",
+      "sha256": "3891f6999606faaa4f18395d5dd3bf1e346e5ba342f23daa275fcf003b6546fb"
+    },
+    {
+      "bytes": 6830,
+      "path": "deploy/adversarial_full.py",
+      "sha256": "d6de0334388babbd235a283ceb29dd688ffe1bbb315c75bd509fbf8480373d30"
+    },
+    {
+      "bytes": 13679,
+      "path": "deploy/adversarial_part2.py",
+      "sha256": "ad25d294dd34b9070de5c893d62491a3a36766883f7ad54eccbb461a1c4a5b76"
+    },
+    {
+      "bytes": 23384,
+      "path": "deploy/adversarial_part3.py",
+      "sha256": "ccdbf6d6d6d0d88b957552c8c632136b86589767451cb25e450c21278aa2fe5b"
+    },
+    {
+      "bytes": 16619,
+      "path": "deploy/adversarial_q1_final.py",
+      "sha256": "bdd6cda656fe9401b8ef65fb84845414a146a1bfab62817e74a0d4b323a466ce"
+    },
+    {
+      "bytes": 11129,
+      "path": "deploy/all_confusion_matrices.py",
+      "sha256": "7bd7babefedc75c96cca64ceb98866b61dbe98e04fb785c01d6a6acf5e13b9b5"
+    },
+    {
+      "bytes": 19258,
+      "path": "deploy/attention_feat_token.py",
+      "sha256": "63486cb584bab8f44d5b70b32b2d82ea89874ae9011914246d51b16b61210a4a"
+    },
+    {
+      "bytes": 18338,
+      "path": "deploy/attention_fixed.py",
+      "sha256": "4868c7ff3922cfab12d1ff7295d5bd2f2e9512d9189f20be6a112435bd3fd070"
+    },
+    {
+      "bytes": 20430,
+      "path": "deploy/attention_high_standard.py",
+      "sha256": "768f6dafe9d266dea68920f9ac4921a0acecb9da2fdb46a8de5e68ffd68f3460"
+    },
+    {
+      "bytes": 13588,
+      "path": "deploy/attention_rigorous.py",
+      "sha256": "e2875b1aa35f30aea02699e56a8e6f6495715963927db4166e60edea5640b287"
+    },
+    {
+      "bytes": 5373,
+      "path": "deploy/check_discrete_collapse.py",
+      "sha256": "da561285239d0ea83406907e58daf49fbb1de03c1f90475e871d0b69fb13ddd4"
+    },
+    {
+      "bytes": 638,
+      "path": "deploy/check_gpu.sh",
+      "sha256": "81ed4ee529ed2f5192eab8815233a67b54926991eecd91d6ead69cdf888564d8"
+    },
+    {
+      "bytes": 4478,
+      "path": "deploy/check_nslkdd_views.py",
+      "sha256": "7e1521120c9f2510532a46da31a7ad6c2a22d5041919171b74f007f1b54b4298"
+    },
+    {
+      "bytes": 934,
+      "path": "deploy/check_progress.sh",
+      "sha256": "90cf7eb53f5452107dae157d06867b45c81e227645d2a4eedd8ee10e7f78edeb"
+    },
+    {
+      "bytes": 818,
+      "path": "deploy/check_tuning.sh",
+      "sha256": "de5012c72df32117f0e38ddaf1dbbf23fb427fa5a829dcc5cf3aaa736d793c16"
+    },
+    {
+      "bytes": 5142,
+      "path": "deploy/cic_data_loader.py",
+      "sha256": "03b9a3f134a088bebc2407c55a52ab31547eb38f4e827bc710c796b6d90988f1"
+    },
+    {
+      "bytes": 7521,
+      "path": "deploy/cnn_baseline.py",
+      "sha256": "aece38090956ee7bb061ca956987ccedd54823525d41e196d39fa96e44927f3e"
+    },
+    {
+      "bytes": 14857,
+      "path": "deploy/correct_cross_dataset.py",
+      "sha256": "eceaac1a22d6c63aeaf838d0afdad9df8161a40e136f220d711f3ee064e2b8c1"
+    },
+    {
+      "bytes": 11662,
+      "path": "deploy/correct_cross_dataset.py.bak_20260829_033230",
+      "sha256": "30d2ea6ce57a9d82f58a8e160e888273d14e788207b07cb41fe9e476c0cc5ed0"
+    },
+    {
+      "bytes": 14753,
+      "path": "deploy/correct_cross_dataset.py.bak_reb_20260829_034331",
+      "sha256": "78381c1b06ff47be4695b833dfcf35c27bdb7d3b1f079b57319372f7ef409190"
+    },
+    {
+      "bytes": 27968,
+      "path": "deploy/correct_unsw_ablation.py",
+      "sha256": "99ee3e5370d7b896375f69c856781b04d83b6e1dd1ae7e7b6a542627d3e6932b"
+    },
+    {
+      "bytes": 26140,
+      "path": "deploy/correct_unsw_ablation.py.bak_xattn_20260829_183551",
+      "sha256": "59cdbb73d65eec3ff5a5237c57fa01ce975f3db1fd67e9c75d750fbd3a116d20"
+    },
+    {
+      "bytes": 2207,
+      "path": "deploy/diag_quantile.py",
+      "sha256": "aec521be28ce3ef5c693a31415be05e35c11618a631c2b79799d167f9e8f7f40"
+    },
+    {
+      "bytes": 2135,
+      "path": "deploy/diag_test.py",
+      "sha256": "1e2bdce43b98e8e9d8e562742642fe7e86b7008ba2fd1c133eabadd93c7919c5"
+    },
+    {
+      "bytes": 4311,
+      "path": "deploy/discrete_correction.py",
+      "sha256": "a246b7eae0bd9d98b795ef6dee89ea4b3bc3f01cb5b7d9cf2f4a793766dfaeaf"
+    },
+    {
+      "bytes": 800,
+      "path": "deploy/dump_cic_features.sh",
+      "sha256": "812c54097a30242980fc8b483c6e9eaba3e5c399a28f04c336cc8455840eb7f1"
+    },
+    {
+      "bytes": 9520,
+      "path": "deploy/extract_attention.py",
+      "sha256": "f6657cb8612391c65b561e367eade05bab12880f4df4bd180fa0181e58eefd68"
+    },
+    {
+      "bytes": 1760,
+      "path": "deploy/feattrans_cic_quick.py",
+      "sha256": "7ee34cd4339548e85e55718d5b3a13c5091c8d1d50fedbbd50aa730d3aa46681"
+    },
+    {
+      "bytes": 5945,
+      "path": "deploy/fidelity_evaluation.py",
+      "sha256": "14310e4c06ee10ede49142a6b929414c85dd5546a94aff4f9fbe6a40f6abe286"
+    },
+    {
+      "bytes": 10441,
+      "path": "deploy/fidelity_full.py",
+      "sha256": "1b010b23cff4bc8b2edd6e3be924b6432098e4acad9162ae2ab655b8c1e81ca5"
+    },
+    {
+      "bytes": 720,
+      "path": "deploy/find_augment.sh",
+      "sha256": "78f557ac86b502c7efdb7295a3b6ab8bf96e3e7cb8c5323b74ff46a3f414b076"
+    },
+    {
+      "bytes": 1217,
+      "path": "deploy/find_tuning.sh",
+      "sha256": "4953388f4dbd7bbb67deec2168efc4817e980f0e34c56f66cc49de4c736098e8"
+    },
+    {
+      "bytes": 9207,
+      "path": "deploy/gen_confusion_matrices.py",
+      "sha256": "201c286b3ad545892a694de9cec55f7c2a59ce255059e9028e7e952cf902a30f"
+    },
+    {
+      "bytes": 5709,
+      "path": "deploy/get_gnn_metrics.py",
+      "sha256": "62660cc53e1b736d2b6f2066f4979aa5bedc6843950de92196b664af31c997da"
+    },
+    {
+      "bytes": 7430,
+      "path": "deploy/multiclass_baselines.py",
+      "sha256": "d62bae31a1eadbe89a66b386252c5294e687a4ac43cc8a032d44dc58a501ca53"
+    },
+    {
+      "bytes": 8464,
+      "path": "deploy/nsl_cm_only.py",
+      "sha256": "732eb8074d623297798ddfcaa554a68f88b152a9d89cbf886d6b2dcda198b8bd"
+    },
+    {
+      "bytes": 5614,
+      "path": "deploy/patch_cross_attention.py",
+      "sha256": "068f6408038dfb490928a44497bfd618f56f5944c89993c47d2075921dd1d7f2"
+    },
+    {
+      "bytes": 3835,
+      "path": "deploy/patch_rebalance.py",
+      "sha256": "cbc0f86da4d94415f952210030f73d7efa8ac65e1d582a3ddc9136b4ce496a5f"
+    },
+    {
+      "bytes": 6249,
+      "path": "deploy/patch_semantic_views.py",
+      "sha256": "55b0dc37e4f47c93bd0fe832ceb8bd897396c2d43523eb59a0cbb735a0a62a3a"
+    },
+    {
+      "bytes": 10410,
+      "path": "deploy/plot_ablation.py",
+      "sha256": "debe58ad185a5ebbebc7066ca9ad64200b1271615d180f6a2e7529a3534146b1"
+    },
+    {
+      "bytes": 10368,
+      "path": "deploy/plot_balance_timing.py",
+      "sha256": "5a767e4bfd246601e4efda5fd811f0624253bd347d7b1d9120a77b470aafb5a3"
+    },
+    {
+      "bytes": 9012,
+      "path": "deploy/plot_cm_roc.py",
+      "sha256": "eb4e15e941261662f1e4345403083796240e5d4e36b59b6c20b2e9d816ca45c0"
+    },
+    {
+      "bytes": 8812,
+      "path": "deploy/plot_correction.py",
+      "sha256": "0e4ba48779667bcf05122de4128259cc2318bde6c4a32547ef7bf33916ab6032"
+    },
+    {
+      "bytes": 11156,
+      "path": "deploy/plot_fidelity.py",
+      "sha256": "901b39d974b1a451c9bba7d04af1c95af011db7799d77964820d3537e1bc45ee"
+    },
+    {
+      "bytes": 1075,
+      "path": "deploy/preflight.sh",
+      "sha256": "724da2d605ce302812525cc26eb3b683cfc798f4b6c547b2fa6aa16a3d96fa40"
+    },
+    {
+      "bytes": 13416,
+      "path": "deploy/q1_final_run.py",
+      "sha256": "1c321690120312669eebc541589585993adfbf6259a8b1bea8ded616cc40364c"
+    },
+    {
+      "bytes": 342,
+      "path": "deploy/queue.txt",
+      "sha256": "7f0e6a10dd598f17b1d534cf0d30c5a7e2146cdb71f3d8b335c373af593591eb"
+    },
+    {
+      "bytes": 12557,
+      "path": "deploy/queue_runner.log",
+      "sha256": "2254301fb819ef9f62957681e61a6204ed191bdca92f3bd76c5335e66161767c"
+    },
+    {
+      "bytes": 1646,
+      "path": "deploy/queue_runner.sh",
+      "sha256": "1d0bd2ba566d1a7a1453a645a5c220ea6b740a78a78c617ad2daadab10605e4d"
+    },
+    {
+      "bytes": 439,
+      "path": "deploy/run_ablation.sh",
+      "sha256": "f5f539f9f0717f7679e36f325d08a842cb203f29bdc5879e11d7096594afe66c"
+    },
+    {
+      "bytes": 9263,
+      "path": "deploy/run_all_baseline_metrics.py",
+      "sha256": "18d57ce428f3a0f9f3d80bfbd7febcb2f445e560abe37dbf8c5e3f7cf262e62f"
+    },
+    {
+      "bytes": 802,
+      "path": "deploy/run_correct_ablation.sh",
+      "sha256": "7e824ba4de1cbd2fc2c5b8836608928db63bca2f05d625fc3c61b565ee66d0de"
+    },
+    {
+      "bytes": 350,
+      "path": "deploy/run_correct_master.log",
+      "sha256": "3c1924af508ab9d2d119891f81e6c21c9b9d68b7e028d0d577929908bf80c68a"
+    },
+    {
+      "bytes": 972,
+      "path": "deploy/run_cross_dataset.sh",
+      "sha256": "769f04efd485b11288feddd9e73b92088b032bc304eedeb4719ed303eaae4098"
+    },
+    {
+      "bytes": 599,
+      "path": "deploy/run_cross_master.log",
+      "sha256": "689597d14287fd50cc3f2f6be09c1fe48fb6fced68fc83d07893fb49e8556e43"
+    },
+    {
+      "bytes": 1097,
+      "path": "deploy/run_nslkdd_semantic.sh",
+      "sha256": "35082f1fa15a5012227634723235e05c328a4fbf44ec8882b98cb3a7cc8670c7"
+    },
+    {
+      "bytes": 889,
+      "path": "deploy/run_one_dataset.sh",
+      "sha256": "21cce8a9bb4521f0d041d7a999e1555ec79d4ae9ef0ab4b883a9228fd1546259"
+    },
+    {
+      "bytes": 885,
+      "path": "deploy/run_phase1.sh",
+      "sha256": "1f6d6c9648f28e93d102d2c4c7f59ce6497b69fd84bf46942280edc7c184d48c"
+    },
+    {
+      "bytes": 350,
+      "path": "deploy/run_semantic_master.log",
+      "sha256": "2cd066801ed90c56fb2b5453b3b94dee9a00d7b0877592b1ef4e0b00fede0720"
+    },
+    {
+      "bytes": 1168,
+      "path": "deploy/run_shift_level.sh",
+      "sha256": "63f5b84d74db437710d10be482e4768b7e53c62ab7a70670180bdea218adf0a4"
+    },
+    {
+      "bytes": 1172,
+      "path": "deploy/run_xattn.sh",
+      "sha256": "9c93f833c25c8cce6769622c20c7f62bc75f92ed9d44edf264a562369757c75d"
+    },
+    {
+      "bytes": 9284,
+      "path": "deploy/scripts/adversarial_real.py",
+      "sha256": "718a689db86450b82608c2c081c49b66f0ef4568be1caeeca7f07ae33539d804"
+    },
+    {
+      "bytes": 12520,
+      "path": "deploy/scripts/attention_real.py",
+      "sha256": "86eeb18b2be4ed8fdd07e9e8dd99b71e8a62c35064e891f106132acfe4389aa2"
+    },
+    {
+      "bytes": 16115,
+      "path": "deploy/scripts/baseline_deep.py",
+      "sha256": "0ce9e1db454293adac3adf42d64da3619bcefb8ba8c9626d4a402c2adf24013a"
+    },
+    {
+      "bytes": 15078,
+      "path": "deploy/scripts/baseline_deep.py.bak_before_task",
+      "sha256": "2af1d966edd7c1c1f8a5b7311e63a6352962ba08485ef6169bf7f75f84ee88a6"
+    },
+    {
+      "bytes": 12248,
+      "path": "deploy/scripts/baseline_fair.py",
+      "sha256": "23612ff90ed9bad3ddb85ab7bb1e44605b1e0def4a7816d501cf1fc41ac2c992"
+    },
+    {
+      "bytes": 11325,
+      "path": "deploy/scripts/baseline_fair.py.bak_before_task",
+      "sha256": "a718b68af2894394c7aba50fbd7959b9b9515a64dbb929a0831b18247cdb7641"
+    },
+    {
+      "bytes": 14756,
+      "path": "deploy/scripts/correct_cross_dataset.py",
+      "sha256": "5a6682e2ed1d683bf86858be591d9500244cf7ed7758ca9f8188c740572acbce"
+    },
+    {
+      "bytes": 12018,
+      "path": "deploy/scripts/correct_cross_dataset.py.bak_before_npz",
+      "sha256": "8b34d8cdff810c2e3804fafad2a7d3741439af78ca945cf3b02269f6c0576c67"
+    },
+    {
+      "bytes": 29574,
+      "path": "deploy/scripts/correct_unsw_ablation.py",
+      "sha256": "8a755bece1aa7525463298b08b526093016a85134b5e23facccbb7269fd7f013"
+    },
+    {
+      "bytes": 28051,
+      "path": "deploy/scripts/correct_unsw_ablation.py.bak_before_discrete",
+      "sha256": "c03820c3a64d3edc085c4b7f679e35787e1e1dbd633780a9920bc6144558f7fd"
+    },
+    {
+      "bytes": 4311,
+      "path": "deploy/scripts/discrete_correction.py",
+      "sha256": "a246b7eae0bd9d98b795ef6dee89ea4b3bc3f01cb5b7d9cf2f4a793766dfaeaf"
+    },
+    {
+      "bytes": 5808,
+      "path": "deploy/scripts/multiclass_data.py",
+      "sha256": "82b41f7e0b786fc123030346547ecf452346af3bd02a779ee31f7e0e159d4898"
+    },
+    {
+      "bytes": 12142,
+      "path": "deploy/scripts/run_instrumented.py",
+      "sha256": "0c2f5e0009b9f98d1c0adcebce002c08b619e85f60b558f5e9b1af2aeebdd38c"
+    },
+    {
+      "bytes": 9045,
+      "path": "deploy/scripts/run_instrumented.py.bak_before_multiclass",
+      "sha256": "174e7b649111d2867bc5b923df4d3ea9c92e865b5c262aa7d54c67efc4ce9abf"
+    },
+    {
+      "bytes": 9521,
+      "path": "deploy/shift_experiment.py",
+      "sha256": "a9ab3c0c8e9c23ee17bbf4f6f6e10d2d126b9b3b9d20c8b0f7efeadb9d60afb6"
+    },
+    {
+      "bytes": 1083,
+      "path": "deploy/shift_progress.sh",
+      "sha256": "22c9d989b0307e9dd89fc74bda44cf97c0d74a56d584e46bcb09a88560eaedec"
+    },
+    {
+      "bytes": 963,
+      "path": "deploy/status_probe.sh",
+      "sha256": "e3806ce8b506072befede4c740447aa5f5118c36f7a591ef71fb4297dd49b4e5"
+    },
+    {
+      "bytes": 9193,
+      "path": "deploy/traditional_ml_all.py",
+      "sha256": "4a7235b5f962e80befd8d10f2461260460e163b4b7ca823e819cc923b3f59952"
+    },
+    {
+      "bytes": 5614,
+      "path": "deploy/train_cic_ddos2019.py",
+      "sha256": "f70a545bfa2f6b785a39eb5e5b92ebe6cdbaa3f9bfcd69eb8c2363ccc43ba01f"
+    },
+    {
+      "bytes": 11134,
+      "path": "deploy/train_gnn_baseline.py",
+      "sha256": "956308aa108bcff14ff161c98a7bf43cb2b83452b5fc04e39b974f84fbc7df2c"
+    },
+    {
+      "bytes": 5363,
+      "path": "deploy/train_gnn_cic.py",
+      "sha256": "a898467c2aa266688c61a65f63a3be231a606946dd72fcc077de3d0fa5d3d841"
+    },
+    {
+      "bytes": 11291,
+      "path": "deploy/train_nsl_kdd.py",
+      "sha256": "4948a22fea6a498423350692572dc71b9b6921350f6df19de6a25a57617b0b5d"
+    },
+    {
+      "bytes": 7127,
+      "path": "deploy/verify_correction.py",
+      "sha256": "66ee036ed9138bba4e0b4d936134dd238bae6aa1f93b83a45a9ec8fa7189c0d9"
+    },
+    {
+      "bytes": 25384,
+      "path": "distribution_validation/distribution_metrics.py",
+      "sha256": "bc2744196ae6a801a843cb86b3fae5ababec9343b76a4a5b2c9b5c52b81cf1a0"
+    },
+    {
+      "bytes": 1869,
+      "path": "distribution_validation/generate_synthetic.py",
+      "sha256": "1ce2d6cb8f9c30217a41d12a932a459b3cf79c95db1b739c1aad9adaff7642d5"
+    },
+    {
+      "bytes": 278,
+      "path": "distribution_validation/run_validation.sh",
+      "sha256": "e095caad9abfd7523ef7b7acb1a1ce17f09ff6bc3f79eaa31d4fe60aefcca01e"
+    },
+    {
+      "bytes": 6576,
+      "path": "experiment_runner/run_all_experiments.py",
+      "sha256": "45514e20dabc71a9308adcde151d7709fe32bf9960b7a2467886a57b9de9988f"
+    },
+    {
+      "bytes": 168,
+      "path": "run_ablation.sh",
+      "sha256": "b1171723332a69f386dde5e2c5250e38ffd19b03d3d8cb44d3ec4213fc59875f"
+    },
+    {
+      "bytes": 193,
+      "path": "run_ablation_xds.sh",
+      "sha256": "98e9fe4c6bbd27705d69b973f676fd3f9ffa2c313fe8e2abc95c70a206b2c549"
+    },
+    {
+      "bytes": 178,
+      "path": "run_adv.sh",
+      "sha256": "6e2f9f00c42b42d7003c242c48492136e13b5df33bc1ad1b76480440852f493d"
+    },
+    {
+      "bytes": 181,
+      "path": "run_adv_full.sh",
+      "sha256": "df3cde85a8752b7aa6b0073d60624cf46aae673d33fb27fc73707122ef99ba43"
+    },
+    {
+      "bytes": 183,
+      "path": "run_adv_p2.sh",
+      "sha256": "c376e0678333aa72dc7b246c6c4425e4257cbaff340afd9a417bb65f8b591b17"
+    },
+    {
+      "bytes": 183,
+      "path": "run_adv_p3.sh",
+      "sha256": "316f47bf02d116eda420ec44deaa0a9fdab5441fb671ea41d7b5b6efb51067e3"
+    },
+    {
+      "bytes": 195,
+      "path": "run_attn.sh",
+      "sha256": "90aef0e3e582670b5b0a6971a40149b472c96c007d65dff912c10cd9e9a87dfc"
+    },
+    {
+      "bytes": 179,
+      "path": "run_attn_fixed.sh",
+      "sha256": "6afe8f670a6d94afaf34c2ddcef558989f5ea3462b67f84ace07aa4376c18d5e"
+    },
+    {
+      "bytes": 189,
+      "path": "run_attn_ft.sh",
+      "sha256": "d434e26985cf0295957ccbcc9e5bb80a14e6820d171488da93268b8772256aea"
+    },
+    {
+      "bytes": 189,
+      "path": "run_baseline_all.sh",
+      "sha256": "00285f4d3960c80623285d0ac90f8d4281d451d2c74078d39bc65ccc17b0313d"
+    },
+    {
+      "bytes": 207,
+      "path": "run_baseline_metrics.sh",
+      "sha256": "98400056c5a133095b84537edc13e09f12ecfd0f9b727e23ed23611488aceac0"
+    },
+    {
+      "bytes": 189,
+      "path": "run_cm.sh",
+      "sha256": "cf81d509984d72736a64602642e151ded66cfb89c193446f007a4500aa95e5be"
+    },
+    {
+      "bytes": 164,
+      "path": "run_cnn.sh",
+      "sha256": "e5e00b200926be7b5fb66a7135e7d145406eb6cd9e4f54bbe48b78bfe227f13a"
+    },
+    {
+      "bytes": 108,
+      "path": "run_ft_cic.sh",
+      "sha256": "392be35a4e62f89dd2032cf09e544ed7315adbf1621cb55ecc8a8ab63fc43fde"
+    },
+    {
+      "bytes": 333,
+      "path": "run_gnn.sh",
+      "sha256": "06f175b6f15ba61de21bfc567002ded5f73271979f06c0cbe0c9d16c03cd5994"
+    },
+    {
+      "bytes": 340,
+      "path": "run_gnn_cic.sh",
+      "sha256": "2f93be5793c5a23aa21b48dbff597440b2f64c794f8ba6107fcd4f25f1678d38"
+    },
+    {
+      "bytes": 320,
+      "path": "run_gnn_mc.sh",
+      "sha256": "835a897ae75c66d495ca082d886294e08718cf001e7f28783b2d8624fa594157"
+    },
+    {
+      "bytes": 123,
+      "path": "run_gnn_metrics.sh",
+      "sha256": "4e268b2f6b80d24a57460ecef7cd01e25f9fb9320ed5b91752b9bf8c71eba317"
+    },
+    {
+      "bytes": 189,
+      "path": "run_mc.sh",
+      "sha256": "7b71afa1ccfbad31985e698a847779f5d238e349fddb63c701ee03cefc0c1d5d"
+    },
+    {
+      "bytes": 181,
+      "path": "run_ml.sh",
+      "sha256": "f2a4ed417329144d56bce8bbe4bb9df05df2e2bbf583828888af225c25b2dba5"
+    },
+    {
+      "bytes": 169,
+      "path": "run_nsl.sh",
+      "sha256": "a98700f3d7351fdcb6867becb9e4fd107e946b14ae299e14d1741c0bcfa449d1"
+    },
+    {
+      "bytes": 166,
+      "path": "run_nsl_cm.sh",
+      "sha256": "f0dc8381d726d76cffe93fcb990ab28f6e1149a3357e34487597e2a03f9a2fbd"
+    },
+    {
+      "bytes": 183,
+      "path": "run_q1.sh",
+      "sha256": "15207d6dea2c50a38add8d684f384d248f21cd53550d2de57eed56e4268eda15"
+    },
+    {
+      "bytes": 169,
+      "path": "run_q1f.sh",
+      "sha256": "5389b160d5e2489fd25dc56c4db9b6958db7237598d2b341086c4d26d8458f1f"
+    }
+  ],
+  "source_root": "/opt/ids_revision"
+}

@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /opt/ids_revision
+export OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
+python3 -u deploy/all_confusion_matrices.py 2>&1 | tee results/confusion_matrices_run.log

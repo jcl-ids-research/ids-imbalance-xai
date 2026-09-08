@@ -1,0 +1,4 @@
+# concurrency raised
+python3 scripts/correct_cross_dataset.py --dataset nslkdd --seed 456 --out-dir results/phase1_corrected
+python3 scripts/correct_cross_dataset.py --dataset cicids2017 --seed 456 --out-dir results/phase1_corrected
+python3 scripts/correct_cross_dataset.py --dataset cicddos2019 --seed 456 --out-dir results/phase1_corrected

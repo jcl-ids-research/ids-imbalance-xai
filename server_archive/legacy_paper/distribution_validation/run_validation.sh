@@ -1,0 +1,1 @@
+python3 /opt/ids_revision/distribution_validation/distribution_metrics.py     --real /opt/ids_revision/results/real_samples.npy     --synth /opt/ids_revision/results/synthetic_samples.npy     --output /opt/ids_revision/results/validation_output     --n_perms 200     --n_bins 50

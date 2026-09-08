@@ -1,0 +1,291 @@
+"""
+Classical baselines under conditions identical to the proposed model (E4).
+
+The editor requires the baseline comparison to be repeated under "strictly
+identical preprocessing, splitting, class distribution and optimisation
+conditions". The existing traditional_ml_all.py cannot satisfy this: it
+concatenates the official train and test partitions, fits the label encoders,
+the imputation medians and the StandardScaler on the merged data, and only then
+draws a fresh random 80/20 split. The scaler therefore sees the evaluation data,
+and the official NSL-KDD / UNSW-NB15 splits are destroyed.
+
+This script instead imports the exact loaders and the exact rebalancing routine
+used by the proposed model, so every baseline sees:
+
+  * the same official (or same seeded stratified) split
+  * preprocessing fitted on the training partition alone
+  * the same sub-train / validation division
+  * the same balanced training set, produced by the same rebalance() call
+  * the same untouched real test partition
+
+Two training sets are reported per dataset:
+
+  balanced  the diffusion-balanced set the full model consumes -- this is the
+            "identical class distribution" arm the editor asked for
+  raw       the unbalanced sub-training set, which isolates whether balancing
+            helps tree ensembles at all
+
+Artifacts mirror run_instrumented.py (metrics.json + predictions_*.npz), so the
+existing plotting scripts work on the output without modification.
+"""
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import os
+import sys
+import time
+
+import numpy as np
+import torch
+import torch.nn as nn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (accuracy_score, confusion_matrix,
+                             precision_recall_fscore_support)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import QuantileTransformer
+from sklearn.svm import SVC
+
+# The deploy root holds an older copy of correct_unsw_ablation.py whose
+# rebalance() returns three values and has no discrete correction. Importing it
+# would silently give the baselines a different balancing procedure, defeating
+# the "strictly identical conditions" this script exists to guarantee. Pin the
+# import to scripts/ and verify at load time.
+_SCRIPTS_DIR = "/opt/ids_revision/deploy/scripts"
+sys.path.insert(0, _SCRIPTS_DIR)
+
+from correct_unsw_ablation import (  # noqa: E402
+    CLASSIFIER_BATCH,
+    DDPM_EPOCHS,
+    MLPDDPM,
+    load_unsw,
+    rebalance,
+    train_ddpm,
+)
+import correct_unsw_ablation as _abl  # noqa: E402
+
+if not os.path.abspath(_abl.__file__).startswith(_SCRIPTS_DIR):
+    raise ImportError(
+        f"wrong correct_unsw_ablation.py loaded: {_abl.__file__}\n"
+        f"expected it under {_SCRIPTS_DIR}")
+import inspect  # noqa: E402
+_sig = inspect.signature(rebalance).return_annotation
+if len(inspect.getsource(rebalance).rsplit("return", 1)[-1].split(",")) < 5:
+    raise ImportError("rebalance() does not return the synthetic arrays; "
+                      "an outdated copy is on sys.path")
+
+DEFAULT_OUT = "/opt/ids_revision/results/baseline_fair"
+
+# An RBF SVM is O(n^2)-O(n^3); on 150k rows it does not terminate in useful
+# time. We cap its training sample and report the cap rather than dropping the
+# model or letting it run unbounded.
+SVM_MAX_TRAIN = 20000
+MLP_EPOCHS = 30
+MLP_BATCH = 256
+
+
+def score(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    p, r, f1, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="weighted", zero_division=0)
+    _, _, f1m, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="macro", zero_division=0)
+    labels = sorted(np.unique(np.concatenate([y_true, y_pred])).tolist())
+    per_class = {}
+    for c in labels:
+        cp, cr, cf, _ = precision_recall_fscore_support(
+            y_true == c, y_pred == c, average="binary", zero_division=0)
+        per_class[str(int(c))] = {"precision": float(cp), "recall": float(cr),
+                                  "f1": float(cf)}
+    return {
+        "acc": float(accuracy_score(y_true, y_pred)),
+        "f1": float(f1),
+        "f1_macro": float(f1m),
+        "precision": float(p),
+        "recall": float(r),
+        "per_class": per_class,
+        "confusion_matrix": confusion_matrix(y_true, y_pred, labels=labels).tolist(),
+    }
+
+
+def fit_rf(Xtr, ytr, Xte, seed, n_classes):
+    m = RandomForestClassifier(n_estimators=100, random_state=seed, n_jobs=-1)
+    m.fit(Xtr, ytr)
+    return m.predict(Xte), m.predict_proba(Xte)
+
+
+def fit_xgb(Xtr, ytr, Xte, seed, n_classes):
+    import xgboost as xgb
+    m = xgb.XGBClassifier(
+        n_estimators=100, learning_rate=0.1, max_depth=6, subsample=0.8,
+        colsample_bytree=0.8, random_state=seed, eval_metric="mlogloss",
+        tree_method="hist", n_jobs=-1)
+    m.fit(Xtr, ytr)
+    return m.predict(Xte), m.predict_proba(Xte)
+
+
+def fit_svm(Xtr, ytr, Xte, seed, n_classes):
+    rng = np.random.default_rng(seed)
+    if len(Xtr) > SVM_MAX_TRAIN:
+        idx = rng.choice(len(Xtr), SVM_MAX_TRAIN, replace=False)
+        Xtr, ytr = Xtr[idx], ytr[idx]
+    m = SVC(kernel="rbf", probability=True, random_state=seed)
+    m.fit(Xtr, ytr)
+    return m.predict(Xte), m.predict_proba(Xte)
+
+
+def fit_mlp(Xtr, ytr, Xte, seed, n_classes):
+    torch.manual_seed(seed)
+    dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = nn.Sequential(
+        nn.Linear(Xtr.shape[1], 256), nn.ReLU(), nn.Dropout(0.3),
+        nn.Linear(256, 128), nn.ReLU(), nn.Dropout(0.3),
+        nn.Linear(128, 64), nn.ReLU(), nn.Dropout(0.3),
+        nn.Linear(64, n_classes),
+    ).to(dev)
+    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+    crit = nn.CrossEntropyLoss()
+    Xt = torch.FloatTensor(Xtr)
+    yt = torch.LongTensor(ytr)
+    n = len(Xt)
+    for _ in range(MLP_EPOCHS):
+        model.train()
+        perm = torch.randperm(n)
+        for i in range(0, n, MLP_BATCH):
+            idx = perm[i:i + MLP_BATCH]
+            xb, yb = Xt[idx].to(dev), yt[idx].to(dev)
+            opt.zero_grad()
+            crit(model(xb), yb).backward()
+            opt.step()
+    model.eval()
+    preds, probs = [], []
+    with torch.no_grad():
+        for i in range(0, len(Xte), 4096):
+            xb = torch.FloatTensor(Xte[i:i + 4096]).to(dev)
+            logits = model(xb)
+            probs.append(torch.softmax(logits, 1).cpu().numpy())
+            preds.append(logits.argmax(1).cpu().numpy())
+    return np.concatenate(preds), np.concatenate(probs)
+
+
+MODELS = {
+    "RandomForest": fit_rf,
+    "XGBoost": fit_xgb,
+    "SVM_RBF": fit_svm,
+    "MLP": fit_mlp,
+}
+
+
+def load(dataset: str, seed: int, smoke: bool):
+    if dataset == "unsw":
+        return load_unsw("/opt/UNSW-NB15", smoke=smoke)
+    from correct_cross_dataset import DATASETS
+    return DATASETS[dataset](seed, smoke)
+
+
+def run(dataset: str, seed: int, out_root: str, smoke: bool,
+        train_sets: tuple[str, ...]) -> dict:
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    out_dir = os.path.join(out_root, dataset, f"seed{seed}")
+    os.makedirs(out_dir, exist_ok=True)
+
+    data = load(dataset, seed, smoke)
+    print(f"  [DATA] {dataset}: train={len(data.X_train)} test={len(data.X_test)} "
+          f"features={data.n_features}", flush=True)
+
+    # Identical split to the proposed model.
+    X_sub, X_val, y_sub, y_val = train_test_split(
+        data.X_train, data.y_train, test_size=0.1,
+        random_state=seed, stratify=data.y_train)
+
+    n_classes = int(np.unique(data.y_train).size)
+
+    sets: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+    balance_report = None
+    if "raw" in train_sets:
+        sets["raw"] = (X_sub, y_sub)
+    if "balanced" in train_sets:
+        # Identical rebalance() call, so the baselines see exactly the class
+        # distribution the full model was trained on.
+        qt = QuantileTransformer(output_distribution="normal", random_state=seed,
+                                 n_quantiles=min(1000, len(X_sub)))
+        X_sub_q = qt.fit_transform(X_sub)
+        ddpm: dict[int, MLPDDPM] = {}
+        for cls in np.unique(y_sub):
+            m = MLPDDPM(data.n_features)
+            train_ddpm(m, X_sub_q[y_sub == cls], device,
+                       2 if smoke else DDPM_EPOCHS, label=str(int(cls)))
+            ddpm[int(cls)] = m
+        X_bal, y_bal, balance_report, _, _ = rebalance(
+            ddpm, X_sub, y_sub, qt, device, seed)
+        sets["balanced"] = (X_bal, y_bal)
+
+    results: dict[str, dict] = {}
+    timings: dict[str, float] = {}
+
+    for set_name, (Xtr, ytr) in sets.items():
+        print(f"  [SET] {set_name}: n={len(Xtr)}", flush=True)
+        for model_name, fn in MODELS.items():
+            key = f"{model_name}__{set_name}"
+            t0 = time.time()
+            y_pred, y_prob = fn(Xtr, ytr, data.X_test, seed, n_classes)
+            timings[key] = time.time() - t0
+            results[key] = score(data.y_test, y_pred)
+
+            np.savez_compressed(
+                os.path.join(out_dir, f"predictions_{key}.npz"),
+                y_true=data.y_test.astype(np.int64),
+                y_pred=y_pred.astype(np.int64),
+                y_prob=y_prob.astype(np.float32),
+            )
+            print(f"    [{key}] F1={results[key]['f1'] * 100:.2f} "
+                  f"acc={results[key]['acc'] * 100:.2f} "
+                  f"({timings[key] / 60:.1f} min)", flush=True)
+
+    meta = {
+        "dataset": dataset,
+        "seed": seed,
+        "protocol": "IDENTICAL to run_instrumented.py: official/train-only split, "
+                    "preprocessing fitted on sub-train only, same 90/10 sub-train "
+                    "/ validation division, same rebalance(), same real test set",
+        "svm_train_cap": SVM_MAX_TRAIN,
+        "sizes": {"train": int(len(X_sub)), "val": int(len(X_val)),
+                  "test": int(len(data.X_test)),
+                  "features": int(data.n_features)},
+        "balance_report": balance_report,
+        "variants": {k: {kk: vv for kk, vv in v.items()
+                         if kk not in ("per_class", "confusion_matrix")}
+                     for k, v in results.items()},
+        "per_class": {k: v["per_class"] for k, v in results.items()},
+        "confusion_matrix": {k: v["confusion_matrix"] for k, v in results.items()},
+        "timings_sec": timings,
+    }
+    with open(os.path.join(out_dir, "metrics.json"), "w") as f:
+        json.dump(meta, f, indent=2)
+    print(f"[OK] artifacts -> {out_dir}")
+    return meta
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dataset", default="unsw",
+                    choices=["unsw", "nslkdd", "cicids2017", "cicddos2019"])
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--train-sets", default="balanced,raw",
+                    help="comma separated: balanced,raw")
+    args = ap.parse_args()
+
+    sets = tuple(s.strip() for s in args.train_sets.split(",") if s.strip())
+    t0 = time.time()
+    run(args.dataset, args.seed, args.out, args.smoke, sets)
+    print(f"Done in {(time.time() - t0) / 60:.1f} min")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
