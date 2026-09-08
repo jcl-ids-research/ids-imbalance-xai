@@ -1,0 +1,28 @@
+  [DATA] unsw: train=175341 test=82332 features=42
+    [DDPM 0] epoch 1/1000 loss=0.74076
+    [DDPM 0] epoch 200/1000 loss=0.12731
+    [DDPM 0] epoch 400/1000 loss=0.11595
+    [DDPM 0] epoch 600/1000 loss=0.10621
+    [DDPM 0] epoch 800/1000 loss=0.10098
+    [DDPM 0] epoch 1000/1000 loss=0.09877
+    [DDPM 1] epoch 1/1000 loss=0.57356
+    [DDPM 1] epoch 200/1000 loss=0.10035
+    [DDPM 1] epoch 400/1000 loss=0.08844
+    [DDPM 1] epoch 600/1000 loss=0.08240
+    [DDPM 1] epoch 800/1000 loss=0.07980
+    [DDPM 1] epoch 1000/1000 loss=0.07768
+    [DISCRETE] correcting 12/42 discrete columns
+    [BAL class 0] real n=50400 mean=-0.066 std=1.040 | syn n=28503 mean=-0.087 std=0.960
+    [BAL] mean_target=78903/class  cap=15x  imbalance 2.13 -> 1.00  before={'0': 50400, '1': 107406}  after={'0': 78903, '1': 78903}
+  [SET] raw: n=157806
+    [RandomForest__raw] F1=86.94 acc=87.25 (0.0 min)
+    [XGBoost__raw] F1=87.24 acc=87.54 (0.0 min)
+    [SVM_RBF__raw] F1=80.32 acc=81.35 (0.9 min)
+    [MLP__raw] F1=87.29 acc=87.48 (1.3 min)
+  [SET] balanced: n=157806
+    [RandomForest__balanced] F1=88.86 acc=88.98 (0.0 min)
+    [XGBoost__balanced] F1=90.06 acc=90.14 (0.0 min)
+    [SVM_RBF__balanced] F1=84.12 acc=84.47 (1.2 min)
+    [MLP__balanced] F1=87.83 acc=87.95 (1.4 min)
+[OK] artifacts -> results/baseline_fair/unsw/seed42
+Done in 16.6 min

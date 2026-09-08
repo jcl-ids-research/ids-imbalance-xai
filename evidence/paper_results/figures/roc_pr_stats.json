@@ -1,0 +1,272 @@
+{
+  "unsw_seed42": {
+    "full_model": {
+      "roc_auc": 0.9768430227081402,
+      "average_precision": 0.9828373093107556,
+      "pr_auc": 0.9828376098619805,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed42/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9828839573381728,
+      "average_precision": 0.987284034390479,
+      "pr_auc": 0.987283869981207,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed42/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9781777912983133,
+      "average_precision": 0.9838333351932145,
+      "pr_auc": 0.9838330348703846,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed42/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9860588388728443,
+      "average_precision": 0.9894586414675266,
+      "pr_auc": 0.9894585063260386,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed42/predictions_baseline.npz"
+    }
+  },
+  "unsw_seed123": {
+    "full_model": {
+      "roc_auc": 0.9790812679903939,
+      "average_precision": 0.9845961306798734,
+      "pr_auc": 0.9845959206711827,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed123/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9836425578494756,
+      "average_precision": 0.9879176469448063,
+      "pr_auc": 0.987917464462194,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed123/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.976563170578149,
+      "average_precision": 0.9818162314980612,
+      "pr_auc": 0.981815900042332,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed123/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9816361972689182,
+      "average_precision": 0.9863943585749635,
+      "pr_auc": 0.9863941163287522,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed123/predictions_baseline.npz"
+    }
+  },
+  "unsw_seed456": {
+    "full_model": {
+      "roc_auc": 0.9762023905909792,
+      "average_precision": 0.982721293805656,
+      "pr_auc": 0.9827209958431887,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed456/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9826452556633223,
+      "average_precision": 0.9872981587358034,
+      "pr_auc": 0.9872979567832345,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed456/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9795609100784363,
+      "average_precision": 0.9846273104989063,
+      "pr_auc": 0.9846270515319295,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed456/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9837088805473613,
+      "average_precision": 0.9874560028790381,
+      "pr_auc": 0.9874557871509579,
+      "n_test": 82332,
+      "source": "results/phase1/unsw/seed456/predictions_baseline.npz"
+    }
+  },
+  "nslkdd_seed123": {
+    "full_model": {
+      "roc_auc": 0.9529340149601919,
+      "average_precision": 0.9578672606290626,
+      "pr_auc": 0.9607664470888396,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed123/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9447260817762697,
+      "average_precision": 0.9491568060477528,
+      "pr_auc": 0.9517301171086877,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed123/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9340589574990906,
+      "average_precision": 0.9521662422251652,
+      "pr_auc": 0.9524538546864253,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed123/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9093983744972958,
+      "average_precision": 0.9419630367013143,
+      "pr_auc": 0.9408695541846082,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed123/predictions_baseline.npz"
+    }
+  },
+  "nslkdd_seed456": {
+    "full_model": {
+      "roc_auc": 0.9437397171941678,
+      "average_precision": 0.9438103407983358,
+      "pr_auc": 0.9478091491679168,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed456/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.957547244566122,
+      "average_precision": 0.9604294221920036,
+      "pr_auc": 0.9630931818481199,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed456/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9326801558735608,
+      "average_precision": 0.9479875669262642,
+      "pr_auc": 0.9369776756589066,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed456/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9442767563670094,
+      "average_precision": 0.9588252316162607,
+      "pr_auc": 0.958837161759279,
+      "n_test": 22544,
+      "source": "results/phase1/nslkdd/seed456/predictions_baseline.npz"
+    }
+  },
+  "cicids2017_seed123": {
+    "full_model": {
+      "roc_auc": 0.9992952905450238,
+      "average_precision": 0.9952589162115062,
+      "pr_auc": 0.9954090519025345,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed123/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9995229562003051,
+      "average_precision": 0.9967452911389969,
+      "pr_auc": 0.9967449026512414,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed123/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.998735982598469,
+      "average_precision": 0.9911448458519926,
+      "pr_auc": 0.9911433623472968,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed123/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9994085913857512,
+      "average_precision": 0.9962025261677534,
+      "pr_auc": 0.9962019862576681,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed123/predictions_baseline.npz"
+    }
+  },
+  "cicids2017_seed456": {
+    "full_model": {
+      "roc_auc": 0.9991824557083366,
+      "average_precision": 0.9943502289419655,
+      "pr_auc": 0.9943486080566166,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed456/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9983423741416289,
+      "average_precision": 0.9914696634044834,
+      "pr_auc": 0.9914681218038995,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed456/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9966105175511802,
+      "average_precision": 0.9823511526537129,
+      "pr_auc": 0.9823480293446497,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed456/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9984309437767858,
+      "average_precision": 0.9928862947595025,
+      "pr_auc": 0.992885630663136,
+      "n_test": 40000,
+      "source": "results/phase1/cicids2017/seed456/predictions_baseline.npz"
+    }
+  },
+  "cicddos2019_seed123": {
+    "full_model": {
+      "roc_auc": 0.9995195522054828,
+      "average_precision": 0.9999846627947141,
+      "pr_auc": 0.9999846603609834,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed123/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9998352180177267,
+      "average_precision": 0.9999947453520429,
+      "pr_auc": 0.9999947452771649,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed123/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9990915057466104,
+      "average_precision": 0.9999710133056627,
+      "pr_auc": 0.9999710204430914,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed123/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9995095313985871,
+      "average_precision": 0.9999843338824962,
+      "pr_auc": 0.9999843339680884,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed123/predictions_baseline.npz"
+    }
+  },
+  "cicddos2019_seed456": {
+    "full_model": {
+      "roc_auc": 0.999780436220693,
+      "average_precision": 0.9999930157701966,
+      "pr_auc": 0.9999930156782623,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed456/predictions_full_model.npz"
+    },
+    "wo_diffusion": {
+      "roc_auc": 0.9999065902792892,
+      "average_precision": 0.9999970175763196,
+      "pr_auc": 0.9999970175352001,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed456/predictions_wo_diffusion.npz"
+    },
+    "wo_multiview": {
+      "roc_auc": 0.9992090839071891,
+      "average_precision": 0.9999748470982047,
+      "pr_auc": 0.9999748467712322,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed456/predictions_wo_multiview.npz"
+    },
+    "baseline": {
+      "roc_auc": 0.9998525361342083,
+      "average_precision": 0.9999952966194553,
+      "pr_auc": 0.9999952965555907,
+      "n_test": 40000,
+      "source": "results/phase1/cicddos2019/seed456/predictions_baseline.npz"
+    }
+  }
+}

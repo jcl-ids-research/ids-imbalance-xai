@@ -1,0 +1,90 @@
+{
+  "unsw": {
+    "n_features": 42,
+    "n_discrete": 12,
+    "before": {
+      "off_default_recall": 0.9399439905043533,
+      "unique_ratio": 4.996626984126984,
+      "n_discrete_scored": 12,
+      "ks_pass_rate": 0.16666666666666666,
+      "mmd2": 0.0058762080789816155,
+      "corr_within_0.10": 0.9396051103368177,
+      "corr_mean_abs_diff": 0.03210309132270915
+    },
+    "after": {
+      "off_default_recall": 0.999791389252305,
+      "unique_ratio": 1.0,
+      "n_discrete_scored": 12,
+      "ks_pass_rate": 0.30952380952380953,
+      "mmd2": 0.0036805919981504954,
+      "corr_within_0.10": 0.9384436701509872,
+      "corr_mean_abs_diff": 0.03489142632829474
+    }
+  },
+  "nslkdd": {
+    "n_features": 40,
+    "n_discrete": 17,
+    "before": {
+      "off_default_recall": 0.3320251708941156,
+      "unique_ratio": 1.0450980392156861,
+      "n_discrete_scored": 14,
+      "ks_pass_rate": 0.525,
+      "mmd2": 0.013171753568271027,
+      "corr_within_0.10": 0.9294871794871795,
+      "corr_mean_abs_diff": 0.04334256121444122
+    },
+    "after": {
+      "off_default_recall": 1.0160482543461362,
+      "unique_ratio": 0.8970588235294118,
+      "n_discrete_scored": 14,
+      "ks_pass_rate": 0.55,
+      "mmd2": 0.01348025258306602,
+      "corr_within_0.10": 0.9025641025641026,
+      "corr_mean_abs_diff": 0.05449825261818964
+    }
+  },
+  "cicids2017": {
+    "n_features": 67,
+    "n_discrete": 10,
+    "before": {
+      "off_default_recall": 0.6979342873332858,
+      "unique_ratio": 4.475,
+      "n_discrete_scored": 7,
+      "ks_pass_rate": 0.1044776119402985,
+      "mmd2": 0.04467860233831378,
+      "corr_within_0.10": 0.7213930348258707,
+      "corr_mean_abs_diff": 0.08221071604648353
+    },
+    "after": {
+      "off_default_recall": 1.000721348334777,
+      "unique_ratio": 1.0,
+      "n_discrete_scored": 7,
+      "ks_pass_rate": 0.1791044776119403,
+      "mmd2": 0.04084775595298962,
+      "corr_within_0.10": 0.7118950701040253,
+      "corr_mean_abs_diff": 0.08510717959999212
+    }
+  },
+  "cicddos2019": {
+    "n_features": 65,
+    "n_discrete": 8,
+    "before": {
+      "off_default_recall": 0.7803891458619612,
+      "unique_ratio": 39.41294642857143,
+      "n_discrete_scored": 8,
+      "ks_pass_rate": 0.03076923076923077,
+      "mmd2": 0.19307160906300008,
+      "corr_within_0.10": 0.1519230769230769,
+      "corr_mean_abs_diff": 0.26770115260164684
+    },
+    "after": {
+      "off_default_recall": 1.0003104916595043,
+      "unique_ratio": 1.0,
+      "n_discrete_scored": 8,
+      "ks_pass_rate": 0.13846153846153847,
+      "mmd2": 0.050395257193591635,
+      "corr_within_0.10": 0.16778846153846153,
+      "corr_mean_abs_diff": 0.2478772298097575
+    }
+  }
+}

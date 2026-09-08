@@ -1,0 +1,29 @@
+  [PREP] dropped 1 zero-variance features
+  [DATA] nslkdd: train=125973 test=22544 features=40
+    [DDPM 0] epoch 1/1000 loss=0.72725
+    [DDPM 0] epoch 200/1000 loss=0.12835
+    [DDPM 0] epoch 400/1000 loss=0.11183
+    [DDPM 0] epoch 600/1000 loss=0.09947
+    [DDPM 0] epoch 800/1000 loss=0.09702
+    [DDPM 0] epoch 1000/1000 loss=0.09062
+    [DDPM 1] epoch 1/1000 loss=0.73971
+    [DDPM 1] epoch 200/1000 loss=0.11159
+    [DDPM 1] epoch 400/1000 loss=0.09398
+    [DDPM 1] epoch 600/1000 loss=0.08806
+    [DDPM 1] epoch 800/1000 loss=0.08064
+    [DDPM 1] epoch 1000/1000 loss=0.07727
+    [DISCRETE] correcting 13/40 discrete columns
+    [BAL class 1] real n=52767 mean=0.040 std=1.065 | syn n=3921 mean=0.035 std=1.015
+    [BAL] mean_target=56688/class  cap=15x  imbalance 1.15 -> 1.00  before={'0': 60608, '1': 52767}  after={'0': 56688, '1': 56688}
+  [SET] raw: n=113375
+    [RandomForest__raw] F1=77.90 acc=78.14 (0.0 min)
+    [XGBoost__raw] F1=78.76 acc=78.94 (0.0 min)
+    [SVM_RBF__raw] F1=78.37 acc=78.61 (0.2 min)
+    [MLP__raw] F1=78.25 acc=78.49 (0.9 min)
+  [SET] balanced: n=113376
+    [RandomForest__balanced] F1=79.81 acc=79.93 (0.0 min)
+    [XGBoost__balanced] F1=80.96 acc=81.04 (0.0 min)
+    [SVM_RBF__balanced] F1=77.85 acc=78.10 (0.2 min)
+    [MLP__balanced] F1=79.89 acc=80.01 (0.9 min)
+[OK] artifacts -> results/baseline_fair/nslkdd/seed42
+Done in 10.9 min

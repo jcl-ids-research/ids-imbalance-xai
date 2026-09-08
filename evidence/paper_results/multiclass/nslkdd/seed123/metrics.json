@@ -1,0 +1,571 @@
+{
+  "dataset": "nslkdd",
+  "seed": 123,
+  "task": "multiclass",
+  "n_classes": 5,
+  "class_names": [
+    "Normal",
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "protocol": "official/train-only split + quantile DDPM + mean-target rebalance + paired init + shuffle",
+  "balance_report": {
+    "mean_target": 22675,
+    "expansion_cap": 15,
+    "before": {
+      "0": 60608,
+      "1": 41334,
+      "2": 10490,
+      "3": 896,
+      "4": 47
+    },
+    "after": {
+      "0": 22675,
+      "1": 22675,
+      "2": 22675,
+      "3": 13440,
+      "4": 705
+    },
+    "actions": {
+      "0": "undersampled 60608 -> 22675",
+      "1": "undersampled 41334 -> 22675",
+      "2": "augmented 10490 + 12185 synthetic -> 22675",
+      "3": "augmented 896 + 12544 synthetic -> 13440 (CAP HIT)",
+      "4": "augmented 47 + 658 synthetic -> 705 (CAP HIT)"
+    },
+    "expansion_ratio": {
+      "0": 0.3741,
+      "1": 0.5486,
+      "2": 2.1616,
+      "3": 15.0,
+      "4": 15.0
+    },
+    "synthetic_total": 25387,
+    "total_before": 113375,
+    "total_after": 82170,
+    "imbalance_ratio_before": 1289.5319,
+    "imbalance_ratio_after": 32.1631
+  },
+  "sizes": {
+    "train": 113375,
+    "val": 12598,
+    "test": 22544,
+    "balanced_train": 82170,
+    "features": 40
+  },
+  "view_partition": {
+    "view1": [
+      "duration",
+      "protocol_type",
+      "service",
+      "flag",
+      "src_bytes",
+      "dst_bytes",
+      "land",
+      "wrong_fragment",
+      "urgent",
+      "hot",
+      "num_failed_logins",
+      "logged_in",
+      "num_compromised",
+      "root_shell"
+    ],
+    "view2": [
+      "su_attempted",
+      "num_root",
+      "num_file_creations",
+      "num_shells",
+      "num_access_files",
+      "is_host_login",
+      "is_guest_login",
+      "count",
+      "srv_count",
+      "serror_rate",
+      "srv_serror_rate",
+      "rerror_rate",
+      "srv_rerror_rate"
+    ],
+    "view3": [
+      "same_srv_rate",
+      "diff_srv_rate",
+      "srv_diff_host_rate",
+      "dst_host_count",
+      "dst_host_srv_count",
+      "dst_host_same_srv_rate",
+      "dst_host_diff_srv_rate",
+      "dst_host_same_src_port_rate",
+      "dst_host_srv_diff_host_rate",
+      "dst_host_serror_rate",
+      "dst_host_srv_serror_rate",
+      "dst_host_rerror_rate",
+      "dst_host_srv_rerror_rate"
+    ]
+  },
+  "timings_sec": {
+    "ddpm": 616.4180793762207,
+    "full_model": 2232.040573120117,
+    "wo_diffusion": 2726.912205219269,
+    "wo_multiview": 964.7545990943909,
+    "baseline": 883.6712975502014
+  },
+  "variants": {
+    "full_model": {
+      "acc": 0.8171132008516678,
+      "f1": 0.8131241564524594,
+      "f1_macro": 0.6526923420095769,
+      "precision": 0.8314756080656222,
+      "recall": 0.8171132008516678,
+      "confusion_matrix": [
+        [
+          9241,
+          55,
+          309,
+          97,
+          9
+        ],
+        [
+          1060,
+          6026,
+          223,
+          146,
+          3
+        ],
+        [
+          614,
+          161,
+          1593,
+          51,
+          2
+        ],
+        [
+          1189,
+          0,
+          98,
+          1546,
+          54
+        ],
+        [
+          36,
+          0,
+          2,
+          14,
+          15
+        ]
+      ]
+    },
+    "wo_diffusion": {
+      "acc": 0.7646380411639461,
+      "f1": 0.7414907253933652,
+      "f1_macro": 0.5343468858244859,
+      "precision": 0.7991817768879387,
+      "recall": 0.7646380411639461,
+      "confusion_matrix": [
+        [
+          9056,
+          475,
+          176,
+          4,
+          0
+        ],
+        [
+          1167,
+          6227,
+          24,
+          40,
+          0
+        ],
+        [
+          946,
+          159,
+          1316,
+          0,
+          0
+        ],
+        [
+          2196,
+          23,
+          29,
+          639,
+          0
+        ],
+        [
+          51,
+          5,
+          0,
+          11,
+          0
+        ]
+      ]
+    },
+    "wo_multiview": {
+      "acc": 0.8055801987224982,
+      "f1": 0.8067651889555241,
+      "f1_macro": 0.6238576832503044,
+      "precision": 0.8262874297889968,
+      "recall": 0.8055801987224982,
+      "confusion_matrix": [
+        [
+          9207,
+          54,
+          314,
+          114,
+          22
+        ],
+        [
+          1006,
+          5704,
+          240,
+          374,
+          134
+        ],
+        [
+          590,
+          207,
+          1622,
+          2,
+          0
+        ],
+        [
+          930,
+          2,
+          132,
+          1609,
+          214
+        ],
+        [
+          26,
+          0,
+          1,
+          21,
+          19
+        ]
+      ]
+    },
+    "baseline": {
+      "acc": 0.7644606103619588,
+      "f1": 0.7200121355032306,
+      "f1_macro": 0.49726933258049233,
+      "precision": 0.8118173292417632,
+      "recall": 0.7644606103619588,
+      "confusion_matrix": [
+        [
+          9494,
+          55,
+          154,
+          8,
+          0
+        ],
+        [
+          1370,
+          5894,
+          194,
+          0,
+          0
+        ],
+        [
+          504,
+          168,
+          1749,
+          0,
+          0
+        ],
+        [
+          2681,
+          3,
+          106,
+          97,
+          0
+        ],
+        [
+          65,
+          2,
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "per_class": {
+    "full_model": {
+      "Normal": {
+        "precision": 0.7612026359143328,
+        "recall": 0.9516012769024818,
+        "f1": 0.8458194132991625,
+        "support": 9711
+      },
+      "DoS": {
+        "precision": 0.9653957065043255,
+        "recall": 0.8079914186108876,
+        "f1": 0.8797080291970802,
+        "support": 7458
+      },
+      "Probe": {
+        "precision": 0.7159550561797753,
+        "recall": 0.6579925650557621,
+        "f1": 0.6857511838140335,
+        "support": 2421
+      },
+      "R2L": {
+        "precision": 0.8338727076591155,
+        "recall": 0.5355039833737444,
+        "f1": 0.6521830837376081,
+        "support": 2887
+      },
+      "U2R": {
+        "precision": 0.18072289156626506,
+        "recall": 0.22388059701492538,
+        "f1": 0.2,
+        "support": 67
+      }
+    },
+    "wo_diffusion": {
+      "Normal": {
+        "precision": 0.6750149075730472,
+        "recall": 0.9325507156832458,
+        "f1": 0.7831538893933497,
+        "support": 9711
+      },
+      "DoS": {
+        "precision": 0.9039047757294237,
+        "recall": 0.8349423437919014,
+        "f1": 0.8680560395901582,
+        "support": 7458
+      },
+      "Probe": {
+        "precision": 0.8517799352750809,
+        "recall": 0.543577034283354,
+        "f1": 0.6636409480584973,
+        "support": 2421
+      },
+      "R2L": {
+        "precision": 0.920749279538905,
+        "recall": 0.22133702805680638,
+        "f1": 0.35688355208042444,
+        "support": 2887
+      },
+      "U2R": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 67
+      }
+    },
+    "wo_multiview": {
+      "Normal": {
+        "precision": 0.7829747427502338,
+        "recall": 0.9481000926784059,
+        "f1": 0.8576618537494178,
+        "support": 9711
+      },
+      "DoS": {
+        "precision": 0.9559242500418971,
+        "recall": 0.7648163046393135,
+        "f1": 0.8497579143389199,
+        "support": 7458
+      },
+      "Probe": {
+        "precision": 0.7024686011260286,
+        "recall": 0.6699710863279636,
+        "f1": 0.6858350951374207,
+        "support": 2421
+      },
+      "R2L": {
+        "precision": 0.7589622641509434,
+        "recall": 0.5573259438863872,
+        "f1": 0.6427002196924306,
+        "support": 2887
+      },
+      "U2R": {
+        "precision": 0.04884318766066838,
+        "recall": 0.2835820895522388,
+        "f1": 0.08333333333333333,
+        "support": 67
+      }
+    },
+    "baseline": {
+      "Normal": {
+        "precision": 0.672665438571631,
+        "recall": 0.9776542065698692,
+        "f1": 0.7969779643231899,
+        "support": 9711
+      },
+      "DoS": {
+        "precision": 0.9627572688663836,
+        "recall": 0.7902923035666398,
+        "f1": 0.8680412371134021,
+        "support": 7458
+      },
+      "Probe": {
+        "precision": 0.7939173853835678,
+        "recall": 0.7224287484510533,
+        "f1": 0.7564878892733564,
+        "support": 2421
+      },
+      "R2L": {
+        "precision": 0.9238095238095239,
+        "recall": 0.03359889158295809,
+        "f1": 0.06483957219251336,
+        "support": 2887
+      },
+      "U2R": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 67
+      }
+    }
+  },
+  "confusion_matrix": {
+    "full_model": [
+      [
+        9241,
+        55,
+        309,
+        97,
+        9
+      ],
+      [
+        1060,
+        6026,
+        223,
+        146,
+        3
+      ],
+      [
+        614,
+        161,
+        1593,
+        51,
+        2
+      ],
+      [
+        1189,
+        0,
+        98,
+        1546,
+        54
+      ],
+      [
+        36,
+        0,
+        2,
+        14,
+        15
+      ]
+    ],
+    "wo_diffusion": [
+      [
+        9056,
+        475,
+        176,
+        4,
+        0
+      ],
+      [
+        1167,
+        6227,
+        24,
+        40,
+        0
+      ],
+      [
+        946,
+        159,
+        1316,
+        0,
+        0
+      ],
+      [
+        2196,
+        23,
+        29,
+        639,
+        0
+      ],
+      [
+        51,
+        5,
+        0,
+        11,
+        0
+      ]
+    ],
+    "wo_multiview": [
+      [
+        9207,
+        54,
+        314,
+        114,
+        22
+      ],
+      [
+        1006,
+        5704,
+        240,
+        374,
+        134
+      ],
+      [
+        590,
+        207,
+        1622,
+        2,
+        0
+      ],
+      [
+        930,
+        2,
+        132,
+        1609,
+        214
+      ],
+      [
+        26,
+        0,
+        1,
+        21,
+        19
+      ]
+    ],
+    "baseline": [
+      [
+        9494,
+        55,
+        154,
+        8,
+        0
+      ],
+      [
+        1370,
+        5894,
+        194,
+        0,
+        0
+      ],
+      [
+        504,
+        168,
+        1749,
+        0,
+        0
+      ],
+      [
+        2681,
+        3,
+        106,
+        97,
+        0
+      ],
+      [
+        65,
+        2,
+        0,
+        0,
+        0
+      ]
+    ]
+  }
+}

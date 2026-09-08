@@ -1,0 +1,5 @@
+  [PREP] dropped 10 zero-variance features
+  [DATA] cicids2017: train=160000 test=40000 features=67
+    [DDPM 0] epoch 1/1000 loss=0.63773
+    [DDPM 0] epoch 200/1000 loss=0.11589
+    [DDPM 0] epoch 400/1000 loss=0.10503

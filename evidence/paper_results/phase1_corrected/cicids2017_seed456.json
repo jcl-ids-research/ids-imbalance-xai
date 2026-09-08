@@ -1,0 +1,76 @@
+{
+  "dataset": "cicids2017",
+  "seed": 456,
+  "protocol": "train-only-preprocessing + conditional-DDPM + mean-target-rebalance + paired-init + positional-views",
+  "official_split": false,
+  "balance_report": {
+    "mean_target": 72000,
+    "expansion_cap": 15,
+    "before": {
+      "0": 132107,
+      "1": 11893
+    },
+    "after": {
+      "0": 72000,
+      "1": 72000
+    },
+    "actions": {
+      "0": "undersampled 132107 -> 72000",
+      "1": "augmented 11893 + 60107 synthetic -> 72000"
+    },
+    "expansion_ratio": {
+      "0": 0.545,
+      "1": 6.054
+    },
+    "synthetic_total": 60107,
+    "total_before": 144000,
+    "total_after": 144000,
+    "imbalance_ratio_before": 11.108,
+    "imbalance_ratio_after": 1.0
+  },
+  "sizes": {
+    "train": 144000,
+    "val": 16000,
+    "test": 40000,
+    "balanced_train": 144000,
+    "features": 67
+  },
+  "variants": {
+    "full_model": {
+      "acc": 0.993225,
+      "f1": 0.9932649994307496,
+      "f1_macro": 0.977912574240061,
+      "precision": 0.9933343453960649,
+      "recall": 0.993225
+    },
+    "wo_diffusion": {
+      "acc": 0.9968,
+      "f1": 0.9967766798129504,
+      "f1_macro": 0.9892891059094546,
+      "precision": 0.9967984456521739,
+      "recall": 0.9968
+    },
+    "wo_multiview": {
+      "acc": 0.995075,
+      "f1": 0.9950568666362469,
+      "f1_macro": 0.9836321631939797,
+      "precision": 0.9950501621083792,
+      "recall": 0.995075
+    },
+    "baseline": {
+      "acc": 0.9965,
+      "f1": 0.9964754912299991,
+      "f1_macro": 0.988291522751361,
+      "precision": 0.9964925475669816,
+      "recall": 0.9965
+    }
+  },
+  "timings_sec": {
+    "full_model": 770.5122451782227,
+    "wo_diffusion": 1394.8227684497833,
+    "wo_multiview": 905.4847238063812,
+    "baseline": 697.7676477432251
+  },
+  "view_partition_type": "positional",
+  "artifact_dir": "results/phase1_corrected/cicids2017/seed456"
+}
