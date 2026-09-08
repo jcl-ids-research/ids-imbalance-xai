@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: >-
+  RM-DMVT: diagnosing discrete-marginal collapse in diffusion-augmented
+  intrusion detection
+message: If you use this software or its archived results, please cite the paper.
+type: software
+license: MIT
+repository-code: https://github.com/jcl-ids-research/ids-imbalance-xai
+abstract: >-
+  Implementation, reproduction driver and archived experiment results for the
+  study of rank-matched correction of collapsed discrete marginals in
+  diffusion-augmented intrusion detection, together with the measured
+  applicability boundary of training-set augmentation.
+keywords:
+  - intrusion detection
+  - class imbalance
+  - diffusion models
+  - reproducibility
+preferred-citation:
+  type: article
+  title: >-
+    Diagnosing Discrete-Marginal Collapse in Diffusion-Augmented Intrusion
+    Detection: Rank-Matched Correction and Applicability Boundaries
+  year: 2026

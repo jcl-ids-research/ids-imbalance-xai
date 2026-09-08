@@ -1,0 +1,17 @@
+.venv/
+.idea/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.basedpyright/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+runs/
+studies/
+*.pt
+*.npz
+*.db
