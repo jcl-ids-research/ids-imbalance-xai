@@ -8,10 +8,14 @@ passed to the CLI. Nothing else is required to reproduce the reported runs.
 
 | Dataset | Publisher source | Files the loader reads |
 |---|---|---|
-| UNSW-NB15 | UNSW Canberra, *The UNSW-NB15 Dataset* release page | `UNSW_NB15_training-set.csv`, `UNSW_NB15_testing-set.csv` |
-| NSL-KDD | Canadian Institute for Cybersecurity, NSL-KDD | `KDDTrain+.txt`, `KDDTest+.txt` |
-| CIC-IDS-2017 | Canadian Institute for Cybersecurity, IDS 2017 | every `*.csv` under `MachineLearningCVE/` |
-| CIC-DDoS2019 | Canadian Institute for Cybersecurity, DDoS 2019 | every `*.csv` under `all/` |
+| UNSW-NB15 | <https://research.unsw.edu.au/projects/unsw-nb15-dataset> | `UNSW_NB15_training-set.csv`, `UNSW_NB15_testing-set.csv` |
+| NSL-KDD | <https://www.unb.ca/cic/datasets/nsl.html> | `KDDTrain+.txt`, `KDDTest+.txt` |
+| CIC-IDS-2017 | <https://www.unb.ca/cic/datasets/ids-2017.html> | every `*.csv` under `MachineLearningCVE/` |
+| CIC-DDoS2019 | <https://www.unb.ca/cic/datasets/ddos-2019.html> | every `*.csv` under `all/` |
+
+The three CIC-hosted releases require accepting the publisher's terms before the
+download link is issued, so they cannot be fetched unattended. Retrieve them
+once by hand and point `--data-root` at the extracted directory.
 
 For the CIC releases you may pass either the release root or the CSV directory
 itself; the loader resolves the documented subdirectory when it is present.

@@ -12,19 +12,19 @@ class-conditional DDPM
 
 The project keeps the two components modular for tuning and ablation, while `RankMatchedDiffusionMultiViewPipeline` exposes one unified experiment pipeline.
 
-## Open in PyCharm
+## Getting started
 
-1. Open **`D:\论文\code`** as the project directory.
-2. In *Settings > Python Interpreter*, create or select a Python 3.10 interpreter.
+1. Clone the repository and open its directory as the project root.
+2. Create or select a Python 3.10 interpreter.
 3. Install `uv` once, then run:
 
    ```powershell
    uv sync --all-groups
    ```
 
-4. PyCharm reads `pyproject.toml`, recognises the `src/` layout, pytest, ruff and basedpyright settings automatically.
+4. Editors that read `pyproject.toml` pick up the `src/` layout, pytest, ruff and basedpyright settings automatically.
 
-The server uses Python 3.10, so the project deliberately targets Python 3.10 even if a newer local interpreter is available.
+The server runs Python 3.10, so the project deliberately targets 3.10 even when a newer local interpreter is available.
 
 ## Directory layout
 
