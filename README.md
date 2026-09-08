@@ -23,7 +23,6 @@ The project keeps the two components modular for tuning and ablation, while `Ran
    ```
 
 4. PyCharm reads `pyproject.toml`, recognises the `src/` layout, pytest, ruff and basedpyright settings automatically.
-5. Do not mark `legacy/` as a source root. It is retained only for provenance.
 
 The server uses Python 3.10, so the project deliberately targets Python 3.10 even if a newer local interpreter is available.
 
