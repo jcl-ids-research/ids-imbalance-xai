@@ -1,0 +1,26 @@
+{
+ "experiment": "training-side attack thinning on UNSW-NB15, keep 5%",
+ "files": [
+  {
+   "file": "keep005_seed42.json",
+   "seed": 42,
+   "sha256_source": "afb89b35f3a27ddcb47ad0fb2c9c0da4841692ea84af0be3aee13cab11367933",
+   "sha256_stored": "c1d64b812ff9a02125f1624ed7d3338da7eb01a734ac9c96b2e17c56625653bc",
+   "source_path": "/opt/ids_revision/rm_dmvt/runs/minority/keep005_seed42.json"
+  },
+  {
+   "file": "keep005_seed123.json",
+   "seed": 123,
+   "sha256_source": "8bbaca6878fccd26435cbb450e429e07b8e103b2556da4b724dd631b472f5099",
+   "sha256_stored": "e5eefc60782feef9968e12369b1489e47d6099a78ce3235ae6f7aa9f25c69ff5",
+   "source_path": "/opt/ids_revision/rm_dmvt/runs/minority/keep005_seed123.json"
+  },
+  {
+   "file": "keep005_seed456.json",
+   "seed": 456,
+   "sha256_source": "bbd8062b52c7c0b10a33ee8dc4a6d764cc2ad7b29c575195255abe484e755bb8",
+   "sha256_stored": "a0d5b573ade7e11711a174a301b513eb49ce0d0ff3afe64e2212575918c7cb94",
+   "source_path": "/opt/ids_revision/rm_dmvt/runs/minority/keep005_seed456.json"
+  }
+ ]
+}

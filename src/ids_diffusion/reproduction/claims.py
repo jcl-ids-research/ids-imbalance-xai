@@ -163,6 +163,47 @@ def restored_off_default_recall(root: Path) -> tuple[float, float]:
     return min(values), max(values)
 
 
+def scarcity_recall(root: Path, variant: str, label: int) -> tuple[float, float]:
+    """Return the mean and spread of one class's recall under training-side scarcity.
+
+    The scarcity run thins UNSW-NB15 attack rows to five per cent of their
+    original count and leaves the test partition as published, so the attack
+    class is rare while the model learns and ordinary when it is scored. It is
+    the one setting in which the proposed model leads a gradient-boosted
+    baseline on the metric the augmentation targets, so the numbers behind that
+    claim are recomputed here rather than trusted.
+    """
+    values: list[float] = []
+    for seed in PAPER_SEEDS:
+        payload = _read(root / "scarcity" / f"keep005_seed{seed}.json")
+        entry = payload["variants"][variant]
+        match = next((c for c in entry["per_class"] if c["label"] == label), None)
+        if match is None:
+            raise DatasetFileError(
+                path=str(root / "scarcity"), detail=f"class {label} missing for {variant}"
+            )
+        values.append(float(match["recall"]) * 100)
+    return statistics.mean(values), statistics.stdev(values)
+
+
+def scarcity_macro_f1(root: Path, variant: str) -> float:
+    """Return the three-seed mean macro F1 of one variant in the scarcity run."""
+    scores = [
+        float(
+            _read(root / "scarcity" / f"keep005_seed{seed}.json")["variants"][variant]["macro_f1"]
+        )
+        * 100
+        for seed in PAPER_SEEDS
+    ]
+    return statistics.mean(scores)
+
+
+def scarcity_thinning(root: Path) -> tuple[int, int]:
+    """Return the attack-row count before and after thinning."""
+    report = _read(root / "scarcity" / "keep005_seed42.json")["shift_report"]
+    return int(report["attacks_before"]), int(report["attacks_after"])
+
+
 def evaluate_claims(root: Path = DEFAULT_EVIDENCE_ROOT) -> tuple[ClaimResult, ...]:
     """Recompute every headline number the manuscript reports."""
     binary = {
@@ -176,6 +217,12 @@ def evaluate_claims(root: Path = DEFAULT_EVIDENCE_ROOT) -> tuple[ClaimResult, ..
     improved, total, largest = balancing_effect(root)
     unsw_cost = correction_cost(root, "unsw")
     nslkdd_cost = correction_cost(root, "nslkdd")
+    scarce_attack_full = scarcity_recall(root, "full_model", 1)
+    scarce_attack_plain = scarcity_recall(root, "without_diffusion", 1)
+    scarce_attack_xgb = scarcity_recall(root, "xgboost_raw", 1)
+    scarce_normal_full = scarcity_recall(root, "full_model", 0)
+    scarce_normal_plain = scarcity_recall(root, "without_diffusion", 0)
+    attacks_before, attacks_after = scarcity_thinning(root)
 
     tolerance = 0.005
     results = [
@@ -221,6 +268,41 @@ def evaluate_claims(root: Path = DEFAULT_EVIDENCE_ROOT) -> tuple[ClaimResult, ..
         ClaimResult("nslkdd correction cost, lowest", 1.92, nslkdd_cost[0], tolerance),
         ClaimResult("nslkdd correction cost, highest", 2.69, nslkdd_cost[1], tolerance),
         ClaimResult("pre-declared correction tolerance", 2.00, CORRECTION_TOLERANCE, 0.0),
+        ClaimResult("scarcity attack recall, augmented", 87.94, scarce_attack_full[0], tolerance),
+        ClaimResult(
+            "scarcity attack recall, unaugmented", 83.83, scarce_attack_plain[0], tolerance
+        ),
+        ClaimResult(
+            "scarcity attack recall gain",
+            4.11,
+            scarce_attack_full[0] - scarce_attack_plain[0],
+            tolerance,
+        ),
+        ClaimResult("scarcity attack recall, xgboost", 87.15, scarce_attack_xgb[0], tolerance),
+        ClaimResult(
+            "scarcity attack recall spread, augmented", 3.98, scarce_attack_full[1], tolerance
+        ),
+        ClaimResult(
+            "scarcity attack recall spread, xgboost", 0.11, scarce_attack_xgb[1], tolerance
+        ),
+        ClaimResult("scarcity majority recall, augmented", 96.38, scarce_normal_full[0], tolerance),
+        ClaimResult(
+            "scarcity majority recall, unaugmented", 98.78, scarce_normal_plain[0], tolerance
+        ),
+        ClaimResult(
+            "scarcity macro f1, augmented",
+            91.71,
+            scarcity_macro_f1(root, "full_model"),
+            tolerance,
+        ),
+        ClaimResult(
+            "scarcity macro f1, xgboost",
+            92.11,
+            scarcity_macro_f1(root, "xgboost_raw"),
+            tolerance,
+        ),
+        ClaimResult("scarcity attack rows before", 119341.0, float(attacks_before), 0.0),
+        ClaimResult("scarcity attack rows after", 5967.0, float(attacks_after), 0.0),
     ]
     return tuple(results)
 
@@ -235,6 +317,9 @@ __all__ = [
     "fgsm_accuracy_drop",
     "residual_imbalance",
     "restored_off_default_recall",
+    "scarcity_macro_f1",
+    "scarcity_recall",
+    "scarcity_thinning",
     "variant_means",
     "variant_spread",
 ]

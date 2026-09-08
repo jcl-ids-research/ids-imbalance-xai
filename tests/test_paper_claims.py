@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,9 @@ from ids_diffusion.reproduction.claims import (
     fgsm_accuracy_drop,
     residual_imbalance,
     restored_off_default_recall,
+    scarcity_macro_f1,
+    scarcity_recall,
+    scarcity_thinning,
     variant_means,
 )
 
@@ -34,7 +38,7 @@ def test_every_headline_number_is_reproduced_by_the_archive() -> None:
         if not result.holds
     ]
     assert not drifted, drifted
-    assert len(results) == 21
+    assert len(results) == 33
 
 
 def test_correction_cost_breaches_the_declared_tolerance_only_on_nslkdd() -> None:
@@ -103,3 +107,56 @@ def test_binary_ablation_covers_four_benchmarks_and_four_variants() -> None:
     expected = {"full_model", "wo_diffusion", "wo_multiview", "baseline"}
     for name, table in tables.items():
         assert set(table) == expected, name
+
+
+def test_augmentation_lifts_attack_recall_when_attacks_are_scarce() -> None:
+    # Given: UNSW-NB15 with training attack rows thinned to five per cent
+    # When: the augmented model is compared with the unaugmented one
+    augmented, _ = scarcity_recall(EVIDENCE, "full_model", 1)
+    plain, _ = scarcity_recall(EVIDENCE, "without_diffusion", 1)
+
+    # Then: the metric the augmentation targets improves by the reported margin
+    assert augmented - plain == pytest.approx(4.11, abs=0.005)
+
+
+def test_scarcity_is_the_only_setting_where_the_model_leads_xgboost() -> None:
+    # Given: the scarcity run, which reports both attack recall and macro F1
+    # When: the proposed model is set against the gradient-boosted baseline
+    augmented, _ = scarcity_recall(EVIDENCE, "full_model", 1)
+    boosted, _ = scarcity_recall(EVIDENCE, "xgboost_raw", 1)
+
+    # Then: it leads on attack recall but still trails on the aggregate
+    assert augmented > boosted
+    assert scarcity_macro_f1(EVIDENCE, "full_model") < scarcity_macro_f1(EVIDENCE, "xgboost_raw")
+
+
+def test_the_scarcity_gain_does_not_hold_at_every_seed() -> None:
+    # Given: the three seeds behind the scarcity result
+    # When: the per-seed attack recall of both variants is compared
+    per_seed = []
+    for seed in (42, 123, 456):
+        payload = json.loads(
+            (EVIDENCE / "scarcity" / f"keep005_seed{seed}.json").read_text(encoding="utf-8")
+        )
+        recalls = {}
+        for variant in ("full_model", "without_diffusion"):
+            entry = payload["variants"][variant]
+            match = next(c for c in entry["per_class"] if c["label"] == 1)
+            recalls[variant] = float(match["recall"]) * 100
+        per_seed.append(recalls["full_model"] - recalls["without_diffusion"])
+
+    # Then: the sign disagrees, which is why the paper declines to call it established
+    assert min(per_seed) < 0 < max(per_seed)
+
+
+def test_scarcity_protocol_thins_training_attacks_and_leaves_the_test_set_alone() -> None:
+    # Given: the thinning report recorded alongside the scarcity metrics
+    # When: the attack counts before and after are read
+    before, after = scarcity_thinning(EVIDENCE)
+
+    # Then: the published counts hold and the protocol is stated in the archive
+    assert (before, after) == (119341, 5967)
+    payload = json.loads(
+        (EVIDENCE / "scarcity" / "keep005_seed42.json").read_text(encoding="utf-8")
+    )
+    assert "test untouched" in payload["protocol"]
