@@ -51,7 +51,7 @@ typeCheckingMode = "all"
 pythonVersion = "3.10"
 pythonPlatform = "All"
 include = ["src", "tests"]
-exclude = ["**/__pycache__", "**/.venv", "**/build", "**/dist", "legacy"]
+exclude = ["**/__pycache__", "**/.venv", "**/build", "**/dist", "server_archive"]
 reportUnusedCallResult = "warning"
 reportUnnecessaryTypeIgnoreComment = "error"
 reportUnusedVariable = "error"
@@ -63,7 +63,7 @@ reportPrivateUsage = "error"
 target-version = "py310"
 line-length = 100
 src = ["src", "tests"]
-exclude = ["legacy"]
+exclude = ["server_archive"]
 
 [tool.ruff.lint]
 select = ["ALL"]

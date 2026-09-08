@@ -43,17 +43,13 @@ code/
 ├── scripts/                  experiment, server and deployment helpers (lint-gated)
 ├── evidence/paper_results/   archived server results behind the reported tables
 ├── server_archive/           immutable snapshot of the original experiment code
-├── runs/                     local outputs, ignored by Git
-└── legacy/
-    ├── scripts/              earlier one-off scripts, not active code
-    └── manuscript_tools/     Word and PDF tooling for the paper, not experiment code
+└── runs/                     local outputs, ignored by Git
 ```
 
 `scripts/` holds only what a reproduction or a server run needs: deployment,
-smoke tests, run launchers and result inspection. The manuscript and
-response-letter tooling was moved to `legacy/manuscript_tools/` so that nothing
-in the reproduction path can be mistaken for typesetting code. Both `legacy/`
-subdirectories are excluded from the quality gates; `scripts/` is not.
+smoke tests, run launchers and result inspection. Nothing in the reproduction
+path is typesetting or manuscript tooling, and `scripts/` is covered by the
+quality gates rather than exempt from them.
 
 ## Reproducing the paper
 
@@ -87,8 +83,9 @@ uv run ids-reproduce claims
 This takes seconds, needs no dataset and no GPU, and covers the four-benchmark
 ablation, the multi-class result, the adversarial cost of augmentation, the
 residual imbalance left by the expansion cap, the cost of the discrete
-correction against its pre-declared tolerance, and the model-independent
-balancing effect. A mismatch means the archive and the manuscript disagree.
+correction against its pre-declared tolerance, the model-independent balancing
+effect, and the minority-recall result under training-side scarcity. A mismatch
+means the archive and the manuscript disagree.
 
 `docs/审计对照表.md` maps every manuscript table to its evidence files and to
 the archived script that produced them, for reviewers auditing coverage.
