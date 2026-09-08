@@ -1,0 +1,14 @@
+# Deployment target for the private training server. The host is supplied at
+# run time through IDS_SERVER_HOST so no internal address is published.
+[server]
+host = "${IDS_SERVER_HOST}"
+project_root = "/opt/ids_revision/rm_dmvt"
+python = "/usr/bin/python3"
+gpu = "NVIDIA A100-SXM4-80GB"
+
+[paths]
+unsw = "/opt/UNSW-NB15"
+nslkdd = "/opt/NSL-KDD"
+cicids2017 = "/opt/CIC-IDS-2017/MachineLearningCVE"
+cicddos2019 = "/opt/CIC-DDoS2019/all"
+results = "/opt/ids_revision/rm_dmvt/runs"

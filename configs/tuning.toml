@@ -1,0 +1,21 @@
+[study]
+name = "rm-dmvt-classifier"
+trials = 30
+storage = "sqlite:///studies/rm-dmvt.db"
+seeds = [42]
+
+[search]
+architecture = ["64x4", "128x4", "128x8", "256x8"]
+n_layers = [2, 6]
+feedforward_ratio = [2, 4]
+dropout = [0.0, 0.35]
+learning_rate = [0.00003, 0.0003]
+weight_decay = [0.000001, 0.001]
+batch_size = [128, 256, 512]
+fusion_mode = ["linear", "attention"]
+
+[protocol]
+selection_metric = "validation_macro_f1"
+test_during_search = false
+confirm_top_k = 3
+confirm_seeds = [42, 123, 456]
