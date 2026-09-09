@@ -76,23 +76,40 @@ class ComparisonReport:
         return all(abs(item.delta) <= self.tolerance for item in self.deltas)
 
 
-def reference_path(root: Path, dataset: str, seed: int) -> Path:
-    """Resolve either archived layout for one dataset and seed."""
-    flat = root / f"{dataset}_seed{seed}.json"
-    nested = root / dataset / f"seed{seed}" / "metrics.json"
-    if flat.is_file():
-        return flat
-    if nested.is_file():
-        return nested
+TASK_FAMILIES: dict[str, str] = {
+    "binary": "phase1_corrected",
+    "multiclass": "multiclass",
+}
+
+
+def reference_path(root: Path, dataset: str, seed: int, task: str = "binary") -> Path:
+    """Resolve either archived layout for one dataset, seed and task.
+
+    `root` may name an evidence root that holds several families, or a family
+    directory directly. Both are accepted so that callers holding an already
+    resolved path keep working.
+    """
+    family = TASK_FAMILIES.get(task)
+    if family is None:
+        raise DatasetFileError(path=str(root), detail=f"unknown task {task!r}")
+
+    candidates = [root / family, root] if (root / family).is_dir() else [root]
+    for base in candidates:
+        flat = base / f"{dataset}_seed{seed}.json"
+        if flat.is_file():
+            return flat
+        nested = base / dataset / f"seed{seed}" / "metrics.json"
+        if nested.is_file():
+            return nested
     raise DatasetFileError(
         path=str(root),
-        detail=f"no archived result for {dataset} seed {seed}",
+        detail=f"no archived {task} result for {dataset} seed {seed}",
     )
 
 
-def load_reference(root: Path, dataset: str, seed: int) -> ReferenceRun:
+def load_reference(root: Path, dataset: str, seed: int, task: str = "binary") -> ReferenceRun:
     """Load one archived run and normalise its variant and metric names."""
-    path = reference_path(root, dataset, seed)
+    path = reference_path(root, dataset, seed, task)
     payload = json.loads(path.read_text(encoding="utf-8"))
     recorded = payload.get("variants")
     if not isinstance(recorded, dict):

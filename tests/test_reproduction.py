@@ -110,3 +110,47 @@ def test_missing_archived_run_is_rejected(tmp_path: Path) -> None:
     # When / Then: loading a seed that was never archived fails loudly
     with pytest.raises(DatasetFileError):
         load_reference(tmp_path, "nslkdd", 999)
+
+
+def test_multiclass_runs_resolve_to_their_own_evidence_family(tmp_path: Path) -> None:
+    # Given: an evidence root holding a binary and a multi-class run for one seed
+    binary_root = tmp_path / "phase1_corrected"
+    binary_root.mkdir()
+    _write_reference(binary_root)
+
+    multiclass_root = tmp_path / "multiclass" / "nslkdd" / "seed42"
+    multiclass_root.mkdir(parents=True)
+    payload = {
+        "dataset": "nslkdd",
+        "seed": 42,
+        "task": "multiclass",
+        "variants": {
+            "full_model": {
+                "acc": 0.46,
+                "f1": 0.46,
+                "f1_macro": 0.46,
+                "precision": 0.46,
+                "recall": 0.46,
+            }
+        },
+    }
+    (multiclass_root / "metrics.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    # When: each task is loaded for the same dataset and seed
+    binary = load_reference(tmp_path, "nslkdd", 42, "binary")
+    multiclass = load_reference(tmp_path, "nslkdd", 42, "multiclass")
+
+    # Then: they resolve to different files, so multi-class reruns are not
+    # silently compared against binary evidence or skipped altogether
+    assert binary.path != multiclass.path
+    assert multiclass.variants["full_model"]["macro_f1"] == pytest.approx(0.46)
+    assert binary.variants["full_model"]["macro_f1"] == pytest.approx(0.80)
+
+
+def test_an_unknown_task_is_rejected(tmp_path: Path) -> None:
+    # Given: an evidence root that holds only the binary family
+    _write_reference(tmp_path)
+
+    # When / Then: an unrecognised task name fails rather than falling back
+    with pytest.raises(DatasetFileError):
+        load_reference(tmp_path, "nslkdd", 42, "regression")

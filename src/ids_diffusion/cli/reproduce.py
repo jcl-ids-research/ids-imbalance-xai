@@ -10,8 +10,14 @@ from typing import Annotated
 import typer
 
 from ids_diffusion.cli.common import parse_device
-from ids_diffusion.config import DatasetName, ExperimentConfig, TaskName
-from ids_diffusion.data.registry import DATASET_NAMES
+from ids_diffusion.config import ExperimentConfig
+from ids_diffusion.data.registry import (
+    DATASET_NAMES,
+    TASK_NAMES,
+    require_dataset,
+    require_task,
+)
+from ids_diffusion.errors import ConfigurationError, DatasetFileError
 from ids_diffusion.reproduction.claims import DEFAULT_EVIDENCE_ROOT as CLAIMS_ROOT
 from ids_diffusion.reproduction.claims import evaluate_claims
 from ids_diffusion.reproduction.evidence import (
@@ -82,9 +88,18 @@ def _selected_jobs(
     tasks: list[str] | None,
     seeds: list[int] | None,
 ) -> tuple[ReproductionJob, ...]:
-    """Build the job matrix, optionally narrowed by CLI filters."""
-    chosen_datasets: tuple[DatasetName, ...] = tuple(datasets) if datasets else DATASET_NAMES  # type: ignore[assignment]
-    chosen_tasks: tuple[TaskName, ...] = tuple(tasks) if tasks else ("binary", "multiclass")  # type: ignore[assignment]
+    """Build the job matrix, optionally narrowed by CLI filters.
+
+    An unrecognised name is reported as a bad parameter rather than a traceback,
+    because a typo here is a user error, not a defect.
+    """
+    try:
+        chosen_datasets = (
+            tuple(require_dataset(name) for name in datasets) if datasets else DATASET_NAMES
+        )
+        chosen_tasks = tuple(require_task(name) for name in tasks) if tasks else TASK_NAMES
+    except ConfigurationError as error:
+        raise typer.BadParameter(error.detail) from error
     chosen_seeds = tuple(seeds) if seeds else PAPER_SEEDS
     return paper_jobs(datasets=chosen_datasets, seeds=chosen_seeds, tasks=chosen_tasks)
 
@@ -188,15 +203,22 @@ def verify(
     tolerance: Annotated[float, typer.Option(help="Allowed absolute difference")] = 0.02,
 ) -> None:
     """Difference reproduced metrics against the archived server results."""
-    paths = sorted(metrics.glob("*_binary_seed*.json"))
+    paths = sorted(metrics.glob("*_seed*.json"))
     if not paths:
-        print(f"no reproduced binary metrics under {metrics}")
+        print(f"no reproduced metrics under {metrics}")
         raise typer.Exit(code=1)
 
     failures = 0
+    skipped = 0
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        reference = load_reference(evidence, payload["dataset"], int(payload["seed"]))
+        task = str(payload.get("task", "binary"))
+        try:
+            reference = load_reference(evidence, payload["dataset"], int(payload["seed"]), task)
+        except DatasetFileError as error:
+            skipped += 1
+            print(f"SKIP\t{path.stem}\tno archived {task} reference\t{error.detail}")
+            continue
         report = compare_to_reference(payload["variants"], reference, tolerance=tolerance)
         largest = report.largest
         summary = (
@@ -206,8 +228,14 @@ def verify(
         )
         state = "PASS" if report.within_tolerance else "REVIEW"
         failures += 0 if report.within_tolerance else 1
-        print(f"{state}\t{path.stem}\tlargest={summary}\tcompared={len(report.deltas)}")
-    print(f"runs={len(paths)} outside_tolerance={failures} tolerance={tolerance}")
+        print(
+            f"{state}\t{path.stem}\ttask={task}\tlargest={summary}\tcompared={len(report.deltas)}"
+        )
+    compared = len(paths) - skipped
+    print(
+        f"runs={len(paths)} compared={compared} skipped={skipped} "
+        f"outside_tolerance={failures} tolerance={tolerance}"
+    )
     if failures:
         raise typer.Exit(code=2)
 
