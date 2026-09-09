@@ -8,8 +8,8 @@
 | 项目 | 结果 |
 |---|---|
 | `ruff check src tests scripts` | 通过 |
-| `ruff format --check src tests scripts` | 通过，94 个文件 |
-| `pytest` | 通过，92 项（默认跳过慢测试） |
+| `ruff format --check src tests scripts` | 通过，98 个文件 |
+| `pytest` | 通过，108 项（默认跳过慢测试） |
 | `pytest -m slow` | 通过，7 项端到端流水线 |
 | `ids-reproduce claims` | 39 项论文数字全部一致，零漂移 |
 | `ids-reproduce plan` | 正确列出 18 次运行 |
@@ -18,7 +18,7 @@
 | 模块大小 | 全部包内模块 ≤ 214 行纯代码 |
 | 凭据与个人信息扫描 | 零命中 |
 
-严格 `basedpyright` 仍非通过门禁：现有 537 errors / 36 warnings 主要来自
+严格 `basedpyright` 仍非通过门禁：现有 509 errors / 26 warnings 主要来自
 numpy、pandas 与 torch 的未标注返回值。改为**基线棘轮**——
 `scripts/check_type_debt.py` 记录当前计数并在 CI 中执行，
 新增诊断会导致失败，计数只能下降。这样债务被冻结而非被屏蔽。
@@ -72,10 +72,14 @@ numpy、pandas 与 torch 的未标注返回值。改为**基线棘轮**——
   与边界处的 JSON 收窄。无效的 `--dataset` / `--task` 现在被明确拒绝而非静默通过；
 - **模块拆分**：`claims.py` 一度增至 355 行，按职责拆为 `archive_io`（JSON 收窄）、
   `measurements`（度量）、`fidelity`（校正代价）与 `claims`（论文数字对照）；
-- **覆盖率**：扩散模型 21%→100%、均衡 33%→100%、搜索空间 0%→89%，
-  测试由 48 项增至 92 项；
-- **发布元数据**：`CITATION.cff` 补 `authors`（匿名审稿期占位）符合 CFF 1.2；
-  `pyproject.toml` 的 license 迁移到 SPDX 字符串，消除弃用警告。
+- **覆盖率**：此前几乎无测试的模块现已覆盖——扩散模型 21%→100%、均衡 33%→100%、
+  分类器训练 31%→100%、调参 runner 0%→100%、调参目标 0%→76%、搜索空间 0%→89%，
+  测试由 48 项增至 108 项，整体覆盖率 60%→71%，CI 设 70% 下限。新增测试锁的是机制而非数字：
+  噪声调度与论文公式一致、扩容上限确实留下残余不平衡、合成行不会越出真实取值范围、
+  早停真的提前结束、返回的是最佳权重而非最后一轮、调参目标拿不到评测分区、
+  相同种子的 study 可复现；
+- **发布元数据**：`CITATION.cff` 补 `authors`（匿名审稿期占位）并经 `cffconvert`
+  验证符合 CFF 1.2；`pyproject.toml` 的 license 迁移到 SPDX 字符串，消除弃用警告。
 
 ## 历史状态
 

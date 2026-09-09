@@ -26,8 +26,12 @@ jobs:
       - name: Formatting
         run: uv run ruff format --check src tests scripts
 
-      - name: Tests
-        run: uv run pytest -q
+      - name: Tests and coverage
+        run: >-
+          uv run pytest -q
+          --cov=ids_diffusion
+          --cov-report=term
+          --cov-fail-under=70
 
       - name: Type debt does not grow
         run: uv run python scripts/check_type_debt.py
@@ -40,3 +44,9 @@ jobs:
 
       - name: Reproduction matrix is enumerable
         run: uv run ids-reproduce plan
+
+      - name: Citation metadata is valid CFF 1.2
+        run: uv run cffconvert --validate -i CITATION.cff
+
+      - name: Build wheel and source distribution
+        run: uv build
