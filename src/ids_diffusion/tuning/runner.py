@@ -5,11 +5,31 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
 import optuna
 
-from ids_diffusion.tuning.objective import ClassifierObjective, DiffusionObjective
+from ids_diffusion.config import ExperimentConfig
 from ids_diffusion.tuning.search_space import TrialProtocol
+
+
+@runtime_checkable
+class TuningObjective(Protocol):
+    """What the runner needs from an objective, and nothing more.
+
+    `ClassifierObjective` and `DiffusionObjective` both satisfy this. Naming the
+    requirement rather than the two concrete types keeps the runner testable
+    without fitting a Transformer, and leaves room for a third objective.
+    """
+
+    @property
+    def base_config(self) -> ExperimentConfig:
+        """Return the configuration the search varies around."""
+        ...
+
+    def __call__(self, trial: TrialProtocol) -> float:
+        """Score one proposed configuration."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,10 +62,7 @@ class OptunaTrialAdapter(TrialProtocol):
         return int(self.trial.suggest_int(name, low, high))
 
 
-def run_study(
-    objective: ClassifierObjective | DiffusionObjective,
-    config: StudyConfig,
-) -> optuna.Study:
+def run_study(objective: TuningObjective, config: StudyConfig) -> optuna.Study:
     """Run or resume a maximisation study and persist the best configuration."""
     sampler = optuna.samplers.TPESampler(seed=config.sampler_seed, multivariate=True)
     pruner = optuna.pruners.MedianPruner(n_startup_trials=8, n_warmup_steps=1)
@@ -74,4 +91,4 @@ def run_study(
     return study
 
 
-__all__ = ["OptunaTrialAdapter", "StudyConfig", "run_study"]
+__all__ = ["OptunaTrialAdapter", "StudyConfig", "TuningObjective", "run_study"]

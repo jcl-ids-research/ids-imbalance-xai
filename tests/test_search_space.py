@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+from typing import final
 
 import pytest
 
@@ -19,6 +20,7 @@ from ids_diffusion.tuning.search_space import (
 from ids_diffusion.types import FusionMode
 
 
+@final
 class ScriptedTrial:
     """A trial that returns fixed choices, so a search space can be tested alone.
 
@@ -26,6 +28,11 @@ class ScriptedTrial:
     suggested configuration is constructible, and that no combination of choices
     can produce an architecture the model layer would reject.
     """
+
+    _categorical: dict[str, str]
+    _integer: str
+    _floating: str
+    asked: list[str]
 
     def __init__(
         self,
@@ -37,7 +44,7 @@ class ScriptedTrial:
         self._categorical = categorical or {}
         self._integer = integer
         self._floating = floating
-        self.asked: list[str] = []
+        self.asked = []
 
     def suggest_categorical(self, name: str, choices: tuple[str, ...]) -> str:
         self.asked.append(name)

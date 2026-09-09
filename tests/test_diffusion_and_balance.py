@@ -48,7 +48,7 @@ def test_alpha_bar_matches_the_closed_form_the_manuscript_prints() -> None:
 
 def test_the_denoising_loss_is_a_finite_scalar() -> None:
     # Given: a small model and a batch of clean rows
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     model = ClassConditionalDdpm(input_dim=6, config=_config())
 
     # When: the training objective is evaluated
@@ -62,7 +62,7 @@ def test_the_denoising_loss_is_a_finite_scalar() -> None:
 
 def test_sampling_returns_bounded_rows_of_the_requested_shape() -> None:
     # Given: an untrained generator, which is the worst case for stability
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     model = ClassConditionalDdpm(input_dim=5, config=_config())
 
     # When: rows are drawn by reversing the schedule
@@ -78,12 +78,12 @@ def test_sampling_returns_bounded_rows_of_the_requested_shape() -> None:
 
 def test_training_reduces_the_objective_on_a_learnable_signal() -> None:
     # Given: rows drawn from one tight cluster, which a denoiser can fit
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(0)
     features = rng.normal(loc=0.5, scale=0.05, size=(128, 4)).astype(np.float32)
     model = ClassConditionalDdpm(input_dim=4, config=_config(epochs=40, batch_size=32))
 
-    torch.manual_seed(1)
+    _ = torch.manual_seed(1)
     before = float(model(torch.from_numpy(features)).detach())
     trained = train_diffusion(
         DiffusionTrainingJob(
@@ -94,7 +94,7 @@ def test_training_reduces_the_objective_on_a_learnable_signal() -> None:
             class_label=1,
         )
     )
-    torch.manual_seed(1)
+    _ = torch.manual_seed(1)
     after = float(trained(torch.from_numpy(features)).detach())
 
     # Then: fitting actually moves the model. Without this, every downstream
@@ -106,7 +106,7 @@ def _job(labels: np.ndarray, features: np.ndarray, cap: int) -> BalancingJob:
     transformer = QuantileTransformer(
         n_quantiles=min(64, len(features)), output_distribution="normal"
     )
-    transformer.fit(features)
+    _ = transformer.fit(features)
     generators = {
         int(label): ClassConditionalDdpm(input_dim=features.shape[1], config=_config())
         for label in np.unique(labels)
@@ -123,7 +123,7 @@ def _job(labels: np.ndarray, features: np.ndarray, cap: int) -> BalancingJob:
 
 def test_balancing_lifts_the_rare_class_and_undersamples_the_common_one() -> None:
     # Given: one class that dominates and one that is scarce
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(0)
     features = rng.normal(size=(220, 4)).astype(np.float32)
     labels = np.array([0] * 200 + [1] * 20, dtype=np.int64)
@@ -141,7 +141,7 @@ def test_balancing_lifts_the_rare_class_and_undersamples_the_common_one() -> Non
 
 def test_the_expansion_cap_leaves_a_deliberate_residual_imbalance() -> None:
     # Given: a class so rare that reaching parity would need a large expansion
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(1)
     features = rng.normal(size=(410, 3)).astype(np.float32)
     labels = np.array([0] * 400 + [1] * 10, dtype=np.int64)
@@ -158,7 +158,7 @@ def test_the_expansion_cap_leaves_a_deliberate_residual_imbalance() -> None:
 
 def test_synthetic_rows_stay_inside_the_observed_range_of_their_class() -> None:
     # Given: a scarce class whose real rows occupy a known range
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(2)
     features = rng.normal(size=(160, 4)).astype(np.float32)
     labels = np.array([0] * 140 + [1] * 20, dtype=np.int64)
@@ -178,7 +178,7 @@ def test_synthetic_rows_stay_inside_the_observed_range_of_their_class() -> None:
 
 def test_an_already_balanced_partition_generates_nothing() -> None:
     # Given: three classes of equal size
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(3)
     features = rng.normal(size=(150, 3)).astype(np.float32)
     labels = np.array([0] * 50 + [1] * 50 + [2] * 50, dtype=np.int64)
@@ -194,7 +194,7 @@ def test_an_already_balanced_partition_generates_nothing() -> None:
 
 def test_no_synthetic_row_carries_a_label_that_was_not_expanded() -> None:
     # Given: an imbalanced partition
-    torch.manual_seed(0)
+    _ = torch.manual_seed(0)
     rng = np.random.default_rng(4)
     features = rng.normal(size=(230, 3)).astype(np.float32)
     labels = np.array([0] * 200 + [1] * 30, dtype=np.int64)

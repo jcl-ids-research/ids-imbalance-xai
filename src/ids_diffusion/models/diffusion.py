@@ -12,6 +12,13 @@ from ids_diffusion.config import DiffusionConfig
 class ClassConditionalDdpm(nn.Module):
     """Predict additive noise and sample by reversing the fixed schedule."""
 
+    betas: torch.Tensor
+    alphas: torch.Tensor
+    alpha_bar: torch.Tensor
+    sqrt_alpha_bar: torch.Tensor
+    sqrt_one_minus_alpha_bar: torch.Tensor
+    denoiser: nn.Sequential
+
     def __init__(self, input_dim: int, config: DiffusionConfig) -> None:
         super().__init__()
         self.input_dim = input_dim
