@@ -1,24 +1,27 @@
 # 发布前状态
 
-**日期**：2026-09-08
-**目标仓库**：`https://github.com/jcl-ids-research/ids-imbalance-xai`（尚未提交）
+**日期**：2026-09-09
+**仓库**：`https://github.com/jcl-ids-research/ids-imbalance-xai`（已公开）
 
 ## 当前门禁结果
 
 | 项目 | 结果 |
 |---|---|
 | `ruff check src tests scripts` | 通过 |
-| `ruff format --check src tests scripts` | 通过，90 个文件 |
-| `pytest` | 通过，44 项（默认跳过慢测试） |
+| `ruff format --check src tests scripts` | 通过，94 个文件 |
+| `pytest` | 通过，92 项（默认跳过慢测试） |
 | `pytest -m slow` | 通过，7 项端到端流水线 |
-| `ids-reproduce claims` | 21 项论文数字全部一致，零漂移 |
+| `ids-reproduce claims` | 39 项论文数字全部一致，零漂移 |
 | `ids-reproduce plan` | 正确列出 18 次运行 |
+| `scripts/check_type_debt.py` | 通过，类型债务未增长 |
 | 构建产物 | wheel 含 `py.typed`，元数据为 `License: MIT` |
-| 模块大小 | 41 个包内模块，最大 210 行纯代码 |
-| 凭据与个人信息扫描 | 612 个文件，零命中 |
-| 单文件体积 | 无文件接近 GitHub 100 MB 限制 |
+| 模块大小 | 全部包内模块 ≤ 214 行纯代码 |
+| 凭据与个人信息扫描 | 零命中 |
 
-严格 `basedpyright` 配置保留为类型债务审计，当前**不是**通过门禁；问题被记录而非屏蔽。
+严格 `basedpyright` 仍非通过门禁：现有 537 errors / 36 warnings 主要来自
+numpy、pandas 与 torch 的未标注返回值。改为**基线棘轮**——
+`scripts/check_type_debt.py` 记录当前计数并在 CI 中执行，
+新增诊断会导致失败，计数只能下降。这样债务被冻结而非被屏蔽。
 
 ## 本轮完成的工作
 
@@ -50,8 +53,29 @@
 - `legacy/` 未随代码发布，其后在本机被误删且不可恢复。该目录只含稿件排版工具，
   不在复现路径上，已发布代码对其引用为零，论文数字核验不受影响；
 - 补齐 §4.2.5 训练侧稀缺性实验的证据（`evidence/paper_results/scarcity/`，3 个种子），
-  该实验此前是全文唯一无归档证据的结论。论文 12 个相关数字与证据逐项吻合；
-- `ids-reproduce claims` 的对照项由 21 增至 33，仍为 `drifted=0`。
+  该实验此前是全文唯一无归档证据的结论。论文 12 个相关数字与证据逐项吻合。
+
+## 第三轮审计后的修补（2026-09-09）
+
+外部审计指出正文与制品仍有问题，逐条处理如下：
+
+- **正文过度表述**：「approximately 100% on every dataset and seed」改为
+  「on all nine measured dataset-seed pairs」。保真度族实际只有 9 个组合
+  （UNSW 三种子，其余三个数据集各两种子），原措辞暗示 12 个；
+- **`verify` 漏比多分类**：`ids-reproduce verify` 此前只匹配 `*_binary_seed*.json`，
+  6 个多分类重跑结果被静默跳过。现按 `task` 字段分派到对应证据族，
+  缺参照时显式报 `SKIP` 而非无声忽略；
+- **声明校验扩展**：新增「9 个保真度组合」「MMD² 8/9 改善」「5 项三种子同号
+  （3 正 2 负）」三类断言，`claims` 由 33 增至 39。这些正是此前只写在正文、
+  无自动核验的表述；
+- **类型抑制清零**：5 处 `# type: ignore` 全部移除，改用 `TypeGuard`
+  与边界处的 JSON 收窄。无效的 `--dataset` / `--task` 现在被明确拒绝而非静默通过；
+- **模块拆分**：`claims.py` 一度增至 355 行，按职责拆为 `archive_io`（JSON 收窄）、
+  `measurements`（度量）、`fidelity`（校正代价）与 `claims`（论文数字对照）；
+- **覆盖率**：扩散模型 21%→100%、均衡 33%→100%、搜索空间 0%→89%，
+  测试由 48 项增至 92 项；
+- **发布元数据**：`CITATION.cff` 补 `authors`（匿名审稿期占位）符合 CFF 1.2；
+  `pyproject.toml` 的 license 迁移到 SPDX 字符串，消除弃用警告。
 
 ## 历史状态
 

@@ -29,6 +29,9 @@ jobs:
       - name: Tests
         run: uv run pytest -q
 
+      - name: Type debt does not grow
+        run: uv run python scripts/check_type_debt.py
+
       - name: End-to-end pipeline on every reported dataset and task
         run: uv run pytest -m slow -q
 
