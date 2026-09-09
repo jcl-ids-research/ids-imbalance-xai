@@ -13,6 +13,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Annotated
 
+import numpy as np
 import typer
 from xgboost import XGBClassifier
 
@@ -39,11 +40,18 @@ class BoosterSettings:
     threads: int
 
 
-def _fit_and_score(
+def fit_and_score(
     training: DatasetMatrix,
     prepared: PreparedExperiment,
     settings: BoosterSettings,
 ) -> ClassificationMetrics:
+    """Fit an XGBoost booster and score it on the frozen holdout.
+
+    This is the one piece of the baseline command that is not argument parsing,
+    so it is kept public and directly tested: both the raw and balanced arms
+    funnel through it, and it returns the same metrics shape as the neural
+    variants.
+    """
     model = XGBClassifier(
         n_estimators=settings.n_estimators,
         max_depth=settings.max_depth,
@@ -59,7 +67,7 @@ def _fit_and_score(
         eval_metric="logloss",
     )
     model.fit(training.features, training.labels)
-    predictions = model.predict(prepared.test.features)
+    predictions = np.asarray(model.predict(prepared.test.features), dtype=np.int64)
     return classification_metrics(prepared.test.labels, predictions)
 
 
@@ -88,8 +96,8 @@ def run(
         seed=seed,
         threads=threads,
     )
-    raw = _fit_and_score(prepared.raw_training, prepared, settings)
-    balanced = _fit_and_score(prepared.balanced_training, prepared, settings)
+    raw = fit_and_score(prepared.raw_training, prepared, settings)
+    balanced = fit_and_score(prepared.balanced_training, prepared, settings)
     payload = {
         "xgboost_raw": asdict(raw),
         "xgboost_balanced": asdict(balanced),
@@ -102,8 +110,8 @@ def run(
         "xgboost baseline written",
         extra={
             "path": str(output),
-            "raw_macro_f1": payload["xgboost_raw"]["macro_f1"],
-            "balanced_macro_f1": payload["xgboost_balanced"]["macro_f1"],
+            "raw_macro_f1": raw.macro_f1,
+            "balanced_macro_f1": balanced.macro_f1,
         },
     )
 
