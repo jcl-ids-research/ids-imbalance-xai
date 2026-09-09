@@ -25,6 +25,7 @@ from ids_diffusion.reproduction.evidence import (
     compare_to_reference,
     load_reference,
 )
+from ids_diffusion.reproduction.families import audit_families
 from ids_diffusion.reproduction.jobs import PAPER_SEEDS, ReproductionJob, paper_jobs
 from ids_diffusion.reproduction.runner import RunnerSettings, preflight, run_job
 from ids_diffusion.types import DeviceChoice
@@ -193,6 +194,42 @@ def claims(
     drifted = sum(1 for result in results if not result.holds)
     print(f"claims={len(results)} drifted={drifted}")
     if drifted:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def families() -> None:
+    """List every experiment family and how it can be reproduced."""
+    for family in audit_families(Path()):
+        entry = family.family
+        run = entry.run_command or "archived-only"
+        print(
+            f"{entry.slug:24s} {entry.generation.value:14s} "
+            f"run={run}  sources={len(entry.sources)} artifacts={family.artifact_count}"
+        )
+
+
+@app.command()
+def audit(
+    root: Annotated[Path | None, typer.Option(help="Repository root")] = None,
+) -> None:
+    """Verify every family's declared sources, artifacts and entry points exist."""
+    reports = audit_families(root or Path())
+    failed = 0
+    for report in reports:
+        entry = report.family
+        state = "OK" if report.ok else "FAIL"
+        detail = ""
+        if report.missing_sources:
+            detail = f" missing={len(report.missing_sources)}"
+        if report.artifact_count == 0 and entry.artifact_patterns:
+            detail += " no-artifacts"
+        if not report.entrypoint_available:
+            detail += f" entrypoint-missing={entry.entrypoint}"
+        print(f"{state}\t{entry.slug}\t{entry.generation.value}{detail}")
+        failed += 0 if report.ok else 1
+    print(f"families={len(reports)} failed={failed}")
+    if failed:
         raise typer.Exit(code=1)
 
 

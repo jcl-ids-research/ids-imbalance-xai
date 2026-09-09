@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from ids_diffusion.errors import DatasetFileError
 
@@ -22,7 +23,9 @@ def read_json(path: Path) -> JsonObject:
     """Load one archived result, failing loudly when it is absent."""
     if not path.is_file():
         raise DatasetFileError(path=str(path), detail="archived result not found")
-    parsed: JsonValue = json.loads(path.read_text(encoding="utf-8"))
+    # `json.loads` is untyped and returns Any; the cast narrows it to the only
+    # shape JSON can produce, so the untyped boundary is crossed exactly once.
+    parsed = cast("JsonValue", json.loads(path.read_text(encoding="utf-8")))
     return as_object(parsed, path, "archived result")
 
 
