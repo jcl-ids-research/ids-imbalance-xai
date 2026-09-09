@@ -8,6 +8,7 @@ policy or view construction.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypeGuard
 
 from ids_diffusion.config import DatasetName, TaskName
 from ids_diffusion.data.cic import CicReadLimits, load_cic
@@ -26,6 +27,7 @@ from ids_diffusion.errors import ConfigurationError, ViewPartitionError
 from ids_diffusion.types import LoadedDataset, ViewIndices
 
 DATASET_NAMES: tuple[DatasetName, ...] = ("unsw", "nslkdd", "cicids2017", "cicddos2019")
+TASK_NAMES: tuple[TaskName, ...] = ("binary", "multiclass")
 CIC_DIRECTORY: dict[DatasetName, str] = {
     "cicids2017": "MachineLearningCVE",
     "cicddos2019": "all",
@@ -41,14 +43,34 @@ REQUIRED_FILES: dict[DatasetName, tuple[str, ...]] = {
 }
 
 
-def _require_known(dataset: str) -> DatasetName:
+def is_dataset_name(value: str) -> TypeGuard[DatasetName]:
+    """Narrow an arbitrary string to a dataset the paper reports."""
+    return value in DATASET_NAMES
+
+
+def is_task_name(value: str) -> TypeGuard[TaskName]:
+    """Narrow an arbitrary string to a task the paper reports."""
+    return value in TASK_NAMES
+
+
+def require_task(task: str) -> TaskName:
+    """Reject any task the paper does not report."""
+    if not is_task_name(task):
+        raise ConfigurationError(
+            field="task",
+            detail=f"expected one of {list(TASK_NAMES)}, got {task!r}",
+        )
+    return task
+
+
+def require_dataset(dataset: str) -> DatasetName:
     """Reject any dataset the paper does not report."""
-    if dataset not in DATASET_NAMES:
+    if not is_dataset_name(dataset):
         raise ConfigurationError(
             field="dataset",
             detail=f"expected one of {list(DATASET_NAMES)}, got {dataset!r}",
         )
-    return dataset  # type: ignore[return-value]
+    return dataset
 
 
 def cic_root(dataset: DatasetName, root: Path) -> Path:
@@ -65,7 +87,7 @@ def load_dataset(
     sample_cap: int = 200_000,
 ) -> LoadedDataset:
     """Load one benchmark with its published split and train-only preprocessing."""
-    name = _require_known(dataset)
+    name = require_dataset(dataset)
     if task == "multiclass" and name not in MULTICLASS_DATASETS:
         raise ConfigurationError(
             field="task",
@@ -85,7 +107,7 @@ def load_dataset(
 
 def missing_inputs(dataset: str, root: Path) -> tuple[str, ...]:
     """Report which public files a dataset still needs before a run can start."""
-    name = _require_known(dataset)
+    name = require_dataset(dataset)
     required = REQUIRED_FILES.get(name)
     if required is not None:
         return tuple(str(root / file) for file in required if not (root / file).is_file())
@@ -106,7 +128,7 @@ def view_indices_for_dataset(
     semantic. The CIC releases have no such mapping, and preprocessing may drop
     zero-variance columns, so those cases use equal positional blocks.
     """
-    name = _require_known(dataset)
+    name = require_dataset(dataset)
     groups = SEMANTIC_VIEWS.get(name)
     if groups is not None:
         try:
@@ -119,8 +141,13 @@ def view_indices_for_dataset(
 __all__ = [
     "DATASET_NAMES",
     "MULTICLASS_DATASETS",
+    "TASK_NAMES",
     "cic_root",
+    "is_dataset_name",
+    "is_task_name",
     "load_dataset",
     "missing_inputs",
+    "require_dataset",
+    "require_task",
     "view_indices_for_dataset",
 ]

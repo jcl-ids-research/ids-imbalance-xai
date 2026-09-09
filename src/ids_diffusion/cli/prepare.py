@@ -8,9 +8,14 @@ from typing import Annotated
 import typer
 
 from ids_diffusion.cli.common import parse_device
-from ids_diffusion.config import DataConfig, DatasetName, ExperimentConfig, TaskName
+from ids_diffusion.config import DataConfig, ExperimentConfig
 from ids_diffusion.data.cache import save_prepared
-from ids_diffusion.data.registry import load_dataset, view_indices_for_dataset
+from ids_diffusion.data.registry import (
+    load_dataset,
+    require_dataset,
+    require_task,
+    view_indices_for_dataset,
+)
 from ids_diffusion.data.splits import apply_attack_thinning
 from ids_diffusion.training.prepare import PreparationJob, prepare_experiment
 from ids_diffusion.types import DeviceChoice, LoadedDataset
@@ -33,8 +38,8 @@ def run(
     """Fit the train-only generator, correct its samples, and write one cache."""
     logger = setup_logging(log_file=output.with_suffix(".log"))
     set_seed(seed)
-    dataset_name: DatasetName = dataset  # type: ignore[assignment]
-    task_name: TaskName = task  # type: ignore[assignment]
+    dataset_name = require_dataset(dataset)
+    task_name = require_task(task)
     loaded = load_dataset(
         dataset_name,
         data_root,
