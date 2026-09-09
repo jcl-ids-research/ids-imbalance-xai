@@ -8,14 +8,16 @@
 | 项目 | 结果 |
 |---|---|
 | `ruff check src tests scripts` | 通过 |
-| `ruff format --check src tests scripts` | 通过，98 个文件 |
-| `pytest` | 通过，108 项（默认跳过慢测试） |
+| `ruff format --check src tests scripts` | 通过，102 个文件 |
+| `pytest` | 通过，113 项（默认跳过慢测试） |
 | `pytest -m slow` | 通过，7 项端到端流水线 |
 | `ids-reproduce claims` | 39 项论文数字全部一致，零漂移 |
 | `ids-reproduce plan` | 正确列出 18 次运行 |
+| `ids-reproduce audit` | 9 个实验族源码、证据、命令声明全部存在 |
 | `scripts/check_type_debt.py` | 通过，类型债务未增长 |
-| 构建产物 | wheel 含 `py.typed`，元数据为 `License: MIT` |
-| 模块大小 | 全部包内模块 ≤ 214 行纯代码 |
+| 覆盖率 | 71.39%，CI 设 70% 下限 |
+| CFF 1.2 / 构建 | `cffconvert --validate` 通过，wheel + sdist 构建成功 |
+| 模块大小 | 全部包内模块 ≤ 250 行纯代码 |
 | 凭据与个人信息扫描 | 零命中 |
 
 严格 `basedpyright` 仍非通过门禁：现有 509 errors / 26 warnings 主要来自
@@ -74,12 +76,26 @@ numpy、pandas 与 torch 的未标注返回值。改为**基线棘轮**——
   `measurements`（度量）、`fidelity`（校正代价）与 `claims`（论文数字对照）；
 - **覆盖率**：此前几乎无测试的模块现已覆盖——扩散模型 21%→100%、均衡 33%→100%、
   分类器训练 31%→100%、调参 runner 0%→100%、调参目标 0%→76%、搜索空间 0%→89%，
-  测试由 48 项增至 108 项，整体覆盖率 60%→71%，CI 设 70% 下限。新增测试锁的是机制而非数字：
+  测试由 48 项增至 120 项（113 快速 + 7 端到端），整体覆盖率 60%→71%，CI 设 70% 下限。新增测试锁的是机制而非数字：
   噪声调度与论文公式一致、扩容上限确实留下残余不平衡、合成行不会越出真实取值范围、
   早停真的提前结束、返回的是最佳权重而非最后一轮、调参目标拿不到评测分区、
   相同种子的 study 可复现；
 - **发布元数据**：`CITATION.cff` 补 `authors`（匿名审稿期占位）并经 `cffconvert`
   验证符合 CFF 1.2；`pyproject.toml` 的 license 迁移到 SPDX 字符串，消除弃用警告。
+
+## 复现面显式化（2026-09-09）
+
+审计指出「全部实验族都有源码和证据，但没有全部纳入统一、可移植的复现入口」。处理如下：
+
+- 新增 `reproduction/families.py`，把论文 9 个实验族登记为两类——
+  `maintained`（主消融、XGBoost、训练侧稀缺性、调参/保留集）与
+  `archived-only`（经典/深度基线、保真度/坍缩/校正、对抗、注意力、图件）；
+- 新增 `ids-reproduce families`（列出）与 `ids-reproduce audit`（验证每个族的
+  源码、证据、命令声明真实存在，缺失即非零退出），并纳入 CI；
+- 训练侧稀缺性从 `scripts/minority_shift.py` 一次性脚本迁移为正式入口
+  `ids-scarcity`，原脚本保留为薄包装转发，不破坏服务器既有调用；
+- 文档删除「一键复现全部实验」的过度承诺，如实标注 archived-only 族
+  证据可查但不可一键重生成。
 
 ## 历史状态
 

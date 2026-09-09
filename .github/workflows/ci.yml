@@ -45,6 +45,9 @@ jobs:
       - name: Reproduction matrix is enumerable
         run: uv run ids-reproduce plan
 
+      - name: Experiment families resolve to real sources and evidence
+        run: uv run ids-reproduce audit
+
       - name: Citation metadata is valid CFF 1.2
         run: uv run cffconvert --validate -i CITATION.cff
 

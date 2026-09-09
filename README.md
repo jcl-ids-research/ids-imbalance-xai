@@ -70,6 +70,19 @@ dataset file is missing, `run` is resumable and writes one cache, metrics file
 and log per job, and `verify` differences each rerun against the archived
 server result for the same dataset and seed.
 
+Two more commands make the reproducibility surface explicit rather than implied:
+
+```powershell
+uv run ids-reproduce families   # every experiment family and how to rerun it
+uv run ids-reproduce audit      # verify sources, artifacts and commands exist
+```
+
+The main ablation matrix, XGBoost, the training-side scarcity study and the
+tuning/holdout workflow run through maintained package commands. The classical
+and deep baselines, fidelity/collapse/correction, adversarial, attention and
+figure analyses reproduce from the immutable server snapshot only: their
+evidence is committed and checkable, but they are not described as portable.
+
 ### Checking the paper without a GPU
 
 Every headline number in the manuscript is recomputed from the archived server

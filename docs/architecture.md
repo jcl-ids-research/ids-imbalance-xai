@@ -52,6 +52,10 @@
 | `runner.py` | 预检、执行、写缓存与指标、已完成任务自动跳过 |
 | `evidence.py` | 读取服务器归档结果并与新跑结果逐指标做差 |
 | `claims.py` | 直接从归档重算论文头条数字，无需 GPU |
+| `measurements.py` | 从归档读出可比数值，不感知论文怎么写 |
+| `fidelity.py` | 校正代价与 MMD² 改善的专有计算 |
+| `archive_io.py` | 在边界处把归档 JSON 收窄成类型化对象 |
+| `families.py` | 全部论文实验族清单，区分 maintained 与 archived-only |
 
 ## 防泄漏的结构性设计
 

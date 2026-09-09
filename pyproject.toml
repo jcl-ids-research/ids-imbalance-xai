@@ -41,6 +41,7 @@ ids-train = "ids_diffusion.cli.train:app"
 ids-tune = "ids_diffusion.cli.tune:app"
 ids-confirm = "ids_diffusion.cli.confirm:app"
 ids-eval = "ids_diffusion.cli.evaluate:app"
+ids-scarcity = "ids_diffusion.cli.scarcity:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
