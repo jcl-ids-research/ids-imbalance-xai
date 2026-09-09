@@ -11,11 +11,14 @@ from ids_diffusion.reproduction.claims import (
     correction_cost,
     evaluate_claims,
     fgsm_accuracy_drop,
+    fidelity_pairs,
+    mmd_improvement,
     residual_imbalance,
     restored_off_default_recall,
     scarcity_macro_f1,
     scarcity_recall,
     scarcity_thinning,
+    seed_consistent_effects,
     variant_means,
 )
 
@@ -38,7 +41,7 @@ def test_every_headline_number_is_reproduced_by_the_archive() -> None:
         if not result.holds
     ]
     assert not drifted, drifted
-    assert len(results) == 33
+    assert len(results) == 39
 
 
 def test_correction_cost_breaches_the_declared_tolerance_only_on_nslkdd() -> None:
@@ -160,3 +163,35 @@ def test_scarcity_protocol_thins_training_attacks_and_leaves_the_test_set_alone(
         (EVIDENCE / "scarcity" / "keep005_seed42.json").read_text(encoding="utf-8")
     )
     assert "test untouched" in payload["protocol"]
+
+
+def test_the_correction_claim_is_bounded_by_the_pairs_actually_measured() -> None:
+    # Given: the fidelity family, whose seed coverage is uneven by benchmark
+    pairs = fidelity_pairs(EVIDENCE)
+
+    # When / Then: the count matches what the manuscript now states, so a
+    # missing run cannot quietly widen "all nine measured pairs" back into
+    # "every dataset and seed"
+    assert pairs == 9
+    low, high = restored_off_default_recall(EVIDENCE)
+    assert low > 99.0
+    assert high < 102.0
+
+
+def test_the_correction_is_not_free_in_joint_structure() -> None:
+    # Given: MMD-squared before and after the rank-matched correction
+    improved, total, exception = mmd_improvement(EVIDENCE)
+
+    # Then: it improves on eight of nine pairs, and the exception is named,
+    # which is what stops the paper claiming the correction costs nothing
+    assert (improved, total) == (8, 9)
+    assert "nslkdd" in exception
+
+
+def test_five_component_effects_survive_the_seed_agreement_bar() -> None:
+    # Given: both ablations across all four benchmarks
+    agreeing, beneficial, harmful = seed_consistent_effects(EVIDENCE)
+
+    # Then: five hold in sign, and two of them are harmful -- the augmentation
+    # reliably costs accuracy on the saturated CIC benchmarks
+    assert (agreeing, beneficial, harmful) == (5, 3, 2)
